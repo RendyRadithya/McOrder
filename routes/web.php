@@ -2,6 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Auth\ChangePasswordController;
 
 Route::get('/', function () {
     return view('home');
@@ -20,10 +25,25 @@ Route::post('/register', [AuthController::class, 'register'])->name('register.po
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// Password reset routes
+Route::get('password/reset', [ForgotPasswordController::class,'showLinkRequestForm'])->name('password.request');
+Route::post('password/email', [ForgotPasswordController::class,'sendResetLinkEmail'])->name('password.email');
+
+Route::get('password/reset/{token}', [ResetPasswordController::class,'showResetForm'])->name('password.reset');
+Route::post('password/reset', [ResetPasswordController::class,'reset'])->name('password.update');
+
+// Change password routes
+Route::get('password/change', function (Request $request) {
+    // menampilkan login view tapi dengan form change password
+    return view('login', ['show_change_password' => true, 'email' => $request->query('email')]);
+})->name('password.change');
+
+Route::post('password/change', [ChangePasswordController::class, 'update'])->name('password.change.update');
+
 // Protected routes
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
-        $user = Auth::user();
+        $user = auth()->user(); // pakai helper, tidak perlu import
         
         // Redirect based on role
         if ($user->role === 'manager_stock') {

@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Login - McOrder</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css','resources/js/app.js'])
 </head>
-<body class="bg-neutral-50 min-h-screen flex flex-col">
+<body class="bg-red-600 min-h-screen flex flex-col">
     <!-- Header -->
     <header class="bg-white border-b border-neutral-200 shadow-sm">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -50,76 +50,151 @@
     </header>
 
     <!-- Main Content -->
-    <main class="flex-1 flex items-center justify-center bg-red-600 px-4 py-12">
-        <div class="w-full max-w-md">
-            <!-- Login Card -->
+    <main class="flex-1 flex items-center justify-center px-4 py-12">
+        <div class="w-full max-w-md mx-auto">
             <div class="bg-white rounded-2xl shadow-2xl p-8">
-                <h2 class="text-3xl font-bold text-neutral-900 mb-2 text-center">Selamat Datang</h2>
-                <p class="text-neutral-500 text-center mb-8 text-sm">Sistem Pemesanan Bahan Baku Non-HAVI</p>
+                @if(session('status'))
+                    <div class="mb-4 text-sm text-green-700 bg-green-50 p-3 rounded">{{ session('status') }}</div>
+                @endif
 
-                <form action="{{ route('login.post') }}" method="POST" class="space-y-5">
-                    @csrf
-                    
-                    <!-- Email Field -->
-                    <div>
-                        <label for="email" class="block text-sm font-semibold text-neutral-700 mb-2">Email</label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="h-5 w-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                                </svg>
-                            </div>
-                            <input 
-                                type="email" 
-                                id="email" 
-                                name="email" 
-                                class="w-full pl-10 pr-4 py-2.5 border border-neutral-300 rounded-lg focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none transition"
+                @if(!empty($show_change_password))
+                    <h2 class="text-2xl font-bold text-center mb-1">Reset Password</h2>
+                    <p class="text-center text-sm text-neutral-500 mb-6">Masukkan email akun, password lama dan password baru</p>
+
+                    <form method="POST" action="{{ route('password.change.update') }}" class="space-y-4">
+                        @csrf
+
+                        <!-- EMAIL (di atas Password Lama) -->
+                        <div>
+                            <label class="block text-sm font-medium text-neutral-700 mb-2">Email</label>
+                            <input
+                                name="email"
+                                type="email"
+                                required
+                                value="{{ old('email') }}"
                                 placeholder="email@example.com"
-                                required
-                            >
+                                class="w-full rounded-md border border-gray-300 px-4 py-3 bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-red-500"
+                            />
+                            @error('email')<div class="text-sm text-red-600 mt-1">{{ $message }}</div>@enderror
                         </div>
-                    </div>
 
-                    <!-- Password Field -->
-                    <div>
-                        <label for="password" class="block text-sm font-semibold text-neutral-700 mb-2">Password</label>
+                        <!-- Password Lama dengan toggle (label di luar wrapper relatif) -->
+                        <label class="block text-sm font-medium text-neutral-700 mb-2">Password Lama</label>
                         <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="h-5 w-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                                </svg>
-                            </div>
-                            <input 
-                                type="password" 
-                                id="password" 
-                                name="password" 
-                                class="w-full pl-10 pr-4 py-2.5 border border-neutral-300 rounded-lg focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none transition"
-                                placeholder="••••••••"
-                                required
-                            >
+                            <input id="current_password" name="current_password" type="password" required
+                                class="w-full rounded-md border border-neutral-200 px-4 py-3 bg-neutral-50 pr-12 focus:outline-none" placeholder="••••••" />
+                            <button type="button" class="absolute right-3 inset-y-0 flex items-center text-neutral-500 p-1"
+                                data-target="current_password" aria-label="toggle current password">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+                            </button>
                         </div>
-                    </div>
+                        @error('current_password')<div class="text-sm text-red-600 mt-1">{{ $message }}</div>@enderror
 
-                    <!-- Remember Me & Forgot Password -->
-                    <div class="flex items-center justify-between text-sm">
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" name="remember" class="w-4 h-4 text-red-600 border-neutral-300 rounded focus:ring-red-500">
-                            <span class="text-neutral-600">Ingat saya</span>
-                        </label>
-                        <a href="#" class="text-red-600 hover:text-red-700 font-medium hover:underline">Lupa password?</a>
-                    </div>
+                        <!-- Password Baru dengan toggle -->
+                        <label class="block text-sm font-medium text-neutral-700 mb-2 mt-4">Password Baru</label>
+                        <div class="relative">
+                            <input id="password" name="password" type="password" required
+                                class="w-full rounded-md border border-neutral-200 px-4 py-3 bg-neutral-50 pr-12 focus:outline-none" placeholder="••••••" />
+                            <button type="button" class="absolute right-3 inset-y-0 flex items-center text-neutral-500 p-1"
+                                data-target="password" aria-label="toggle new password">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+                            </button>
+                        </div>
+                        @error('password')<div class="text-sm text-red-600 mt-1">{{ $message }}</div>@enderror
 
-                    <!-- Login Button -->
-                    <button type="submit" class="w-full rounded-lg bg-rose-400 px-7 py-3 text-base font-semibold text-white hover:bg-rose-500 transition shadow-md">
-                        Login
-                    </button>
+                        <!-- Konfirmasi Password Baru dengan toggle -->
+                        <label class="block text-sm font-medium text-neutral-700 mb-2 mt-4">Konfirmasi Password Baru</label>
+                        <div class="relative">
+                            <input id="password_confirmation" name="password_confirmation" type="password" required
+                                class="w-full rounded-md border border-neutral-200 px-4 py-3 bg-neutral-50 pr-12 focus:outline-none" placeholder="••••••" />
+                            <button type="button" class="absolute right-3 inset-y-0 flex items-center text-neutral-500 p-1"
+                                data-target="password_confirmation" aria-label="toggle confirm password">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+                            </button>
+                        </div>
 
-                    <!-- Register Link -->
-                    <div class="text-center text-sm">
-                        <span class="text-neutral-600">Belum punya akun?</span>
-                        <a href="/register" class="text-red-600 hover:text-red-700 font-semibold hover:underline ml-1">Daftar di sini</a>
-                    </div>
-                </form>
+                        <div class="pt-4">
+                            <button type="submit" class="w-full bg-red-600 text-white py-3 rounded-md font-semibold hover:bg-red-700 transition">
+                                Reset
+                            </button>
+                        </div>
+
+                        <div class="pt-4 text-center text-sm text-neutral-600">
+                            <a href="{{ route('login') }}" class="text-red-600 hover:underline">Kembali ke Login</a>
+                        </div>
+                    </form>
+
+                    <!-- JS toggle simple (inline) -->
+                    <script>
+                        document.querySelectorAll('.toggle-password').forEach(function(btn){
+                            btn.addEventListener('click', function(){
+                                var target = btn.getAttribute('data-target');
+                                var input = document.getElementById(target);
+                                if(!input) return;
+                                if(input.type === 'password'){
+                                    input.type = 'text';
+                                    btn.setAttribute('aria-pressed', 'true');
+                                } else {
+                                    input.type = 'password';
+                                    btn.setAttribute('aria-pressed', 'false');
+                                }
+                            });
+                        });
+                    </script>
+                @else
+                    <!-- existing login form -->
+                    <h2 class="text-2xl sm:text-3xl font-bold text-neutral-900 mb-1 text-center">Selamat Datang</h2>
+                    <p class="text-neutral-500 text-center mb-6 text-sm">Sistem Pemesanan Bahan Baku Non-HAVI</p>
+                    <form method="POST" action="{{ route('login.post') }}" class="space-y-5">
+                        @csrf
+                        <div>
+                            <label class="block text-sm font-medium text-neutral-700 mb-2">Email</label>
+                            <input name="email" type="email" required class="w-full rounded-md border px-4 py-3 bg-neutral-50" />
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-neutral-700 mb-2">Password</label>
+
+                                <!-- buat wrapper relatif hanya untuk input agar ikon sejajar vertikal dengan teks •••••• -->
+                                <div class="relative">
+                                    <input
+                                        id="login_password"
+                                        name="password"
+                                        type="password"
+                                        required
+                                        placeholder="••••••"
+                                        class="w-full rounded-md border px-4 py-3 bg-neutral-50 pr-12 focus:outline-none focus:ring-2 focus:ring-red-500"
+                                    />
+                                    <button type="button"
+                                        class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center text-neutral-500 p-1"
+                                        data-target="login_password"
+                                        aria-label="Toggle password visibility">
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+                                            <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                            <label class="inline-flex items-center gap-2 text-neutral-700">
+                                <input type="checkbox" name="remember" class="rounded" /> Ingat saya
+                            </label>
+                            <a href="{{ route('password.change') }}" class="text-red-600 hover:underline">Lupa password?</a>
+                        </div>
+                        <div class="pt-4">
+                            <button type="submit" class="w-full bg-red-600 text-white py-3 rounded-md font-semibold hover:bg-red-700 transition">
+                                Login
+                            </button>
+                        </div>
+
+                        <!-- Tampilkan link registrasi (hapus Google sign-in) -->
+                        <div class="mt-6 text-center text-sm text-neutral-600">
+                            Belum punya akun? <a href="{{ route('register') }}" class="text-red-600 font-medium hover:underline">Daftar di sini</a>
+                        </div>
+                    </form>
+                @endif
             </div>
         </div>
     </main>
@@ -132,5 +207,18 @@
             </p>
         </div>
     </footer>
+
+    <!-- compact JS toggle (add once before closing </body>) -->
+    <script>
+    document.addEventListener('click', function(e){
+        var btn = e.target.closest('button[data-target]');
+        if (!btn) return;
+        var id = btn.getAttribute('data-target');
+        var input = document.getElementById(id);
+        if (!input) return;
+        input.type = input.type === 'password' ? 'text' : 'password';
+        btn.setAttribute('aria-pressed', input.type === 'text' ? 'true' : 'false');
+    });
+    </script>
 </body>
 </html>
