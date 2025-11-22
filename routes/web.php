@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\ChangePasswordController;
+use App\Http\Controllers\OrderController;
 
 Route::get('/', function () {
     return view('home');
@@ -48,15 +49,15 @@ Route::middleware('auth')->group(function () {
         // Redirect based on role
         if ($user->role === 'manager_stock') {
             // Get statistics for manager stock
-            $orders = \App\Models\Order::where('user_id', $user->id)->latest()->get();
-            
-            return view('dashboards.manager-stock', [
-                'orders' => $orders,
-                'totalOrders' => $orders->count(),
-                'pendingOrders' => $orders->where('status', 'pending')->count(),
-                'inProgressOrders' => $orders->whereIn('status', ['confirmed', 'in_progress'])->count(),
-                'completedOrders' => $orders->where('status', 'completed')->count(),
-            ]);
+            $orders = \App\Models\Order::latest()->get();
+
+            // totalOrders should exclude already completed orders
+            $totalOrders = $orders->where('status', '!=', 'completed')->count();
+            $pendingOrders = $orders->where('status', 'pending')->count();
+            $inProgressOrders = $orders->whereIn('status', ['confirmed', 'in_progress'])->count();
+            $completedOrders = $orders->where('status', 'completed')->count();
+
+            return view('dashboards.manager-stock', compact('orders', 'totalOrders', 'pendingOrders', 'inProgressOrders', 'completedOrders'));
         } elseif ($user->role === 'vendor') {
             return view('dashboards.vendor');
         } elseif ($user->role === 'admin') {
@@ -66,4 +67,9 @@ Route::middleware('auth')->group(function () {
         // Fallback
         return view('dashboard');
     })->name('dashboard');
+
+    // AJAX endpoints for orders
+    Route::get('/vendors', [OrderController::class, 'vendors']);
+    Route::get('/vendors/{id}/products', [OrderController::class, 'products']);
+    Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
 });
