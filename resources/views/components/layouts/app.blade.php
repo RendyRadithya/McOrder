@@ -48,12 +48,61 @@
 					</nav>
 					<div class="flex items-center gap-3">
                         @auth
+                            <!-- Notification Component -->
                             @include('components.notifications')
+
+                            <!-- User Menu -->
+                            <div class="relative ml-3">
+                                <button id="user-menu-button" type="button" class="flex items-center gap-3 focus:outline-none" onclick="toggleUserMenu(event)">
+                                    <div class="text-right hidden md:block">
+                                        <div class="font-medium text-neutral-900 truncate max-w-[150px]">{{ Auth::user()->name }}</div>
+                                        <div class="text-xs text-neutral-500 truncate">{{ Auth::user()->store_name ?? ucfirst(Auth::user()->role) }}</div>
+                                    </div>
+                                    <div class="h-10 w-10 rounded-full bg-red-600 text-white flex items-center justify-center font-semibold text-lg">
+                                        {{ substr(Auth::user()->name, 0, 1) }}
+                                    </div>
+                                </button>
+
+                                <!-- Dropdown Menu -->
+                                <div id="user-menu" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50">
+                                    <!-- Header -->
+                                    <div class="px-4 py-3 border-b">
+                                        <div class="text-sm font-semibold text-neutral-900">{{ Auth::user()->name }}</div>
+                                        <div class="text-xs text-neutral-500 mt-0.5">
+                                            {{ ucfirst(str_replace('_', ' ', Auth::user()->role)) }}
+                                            @if(Auth::user()->store_name)
+                                                <span class="block text-xs text-neutral-400">{{ Auth::user()->store_name }}</span>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    <!-- Menu Items -->
+                                    <div class="py-1">
+                                        <a href="{{ url('/profile') }}" class="flex items-center gap-3 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                            </svg>
+                                            <span>Profile</span>
+                                        </a>
+
+                                        <form method="POST" action="{{ route('logout') }}">
+                                            @csrf
+                                            <button type="submit" class="flex w-full items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-neutral-100">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7"></path>
+                                                </svg>
+                                                <span class="font-medium">Logout</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        @else
+                            <a href="/login" class="inline-flex items-center gap-2 rounded-md bg-red-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-700 transition">
+                                <span>🔐</span>
+                                Login
+                            </a>
                         @endauth
-						<a href="/login" class="inline-flex items-center gap-2 rounded-md bg-red-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-700 transition">
-							<span>🔐</span>
-							Login
-						</a>
 					</div>
 				</div>
 			</div>
@@ -135,5 +184,21 @@
 				</div>
 			</div>
 		</footer>
+		<script>
+            function toggleUserMenu(event) {
+                event.stopPropagation();
+                const menu = document.getElementById('user-menu');
+                menu.classList.toggle('hidden');
+            }
+
+            // Close menu when clicking outside
+            document.addEventListener('click', function(event) {
+                const menu = document.getElementById('user-menu');
+                const button = document.getElementById('user-menu-button');
+                if (menu && !menu.classList.contains('hidden') && !menu.contains(event.target) && !button.contains(event.target)) {
+                    menu.classList.add('hidden');
+                }
+            });
+        </script>
 	</body>
 </html>

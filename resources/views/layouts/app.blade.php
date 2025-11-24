@@ -35,9 +35,12 @@
                             </div>
                         </div>
 
-                        <!-- User Menu -->
-                        <div class="flex items-center gap-4 relative">
-                            <button id="user-menu-button" type="button" class="flex items-center gap-3 focus:outline-none" onclick="toggleUserMenu(event)">
+                        <!-- User Menu & Notifications -->
+                        <div class="flex items-center gap-4">
+                            @include('components.notifications')
+
+                            <div class="relative">
+                                <button id="user-menu-button" type="button" class="flex items-center gap-3 focus:outline-none" onclick="toggleUserMenu(event)">
                                 <div class="text-right mr-2 max-w-xs">
                                     <div class="font-medium text-neutral-900 truncate">{{ Auth::user()->name }}</div>
                                     <div class="text-xs text-neutral-500 truncate">{{ ucfirst(str_replace('_', ' ', Auth::user()->role)) }}</div>
