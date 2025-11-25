@@ -19,7 +19,8 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        return view('auth.register');
+        // Use the custom multi-step register view
+        return view('register');
     }
 
     /**
@@ -30,14 +31,20 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
+            'role' => ['required', 'string'],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'phone' => ['nullable', 'string', 'max:30'],
+            'store_name' => ['nullable', 'string', 'max:255'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $user = User::create([
+            'role' => $request->role,
             'name' => $request->name,
             'email' => $request->email,
+            'phone' => $request->phone,
+            'store_name' => $request->store_name,
             'password' => Hash::make($request->password),
         ]);
 

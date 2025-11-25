@@ -91,7 +91,7 @@
 
                     <!-- Step 1: Informasi Dasar -->
                     <div id="step-1" class="step-content">
-                        <!-- Daftar Sebagai -->
+                        <!-- Daftar Sebagai: pilihan antara Manager Stock atau Vendor -->
                         <div>
                             <label for="role" class="block text-sm font-semibold text-neutral-700 mb-2">Daftar Sebagai</label>
                             <div class="relative">
@@ -101,15 +101,13 @@
                                     </svg>
                                 </div>
                                 <select 
-                                    id="role" 
-                                    name="role" 
+                                    id="role"
+                                    name="role"
                                     class="w-full pl-10 pr-4 py-2.5 border border-neutral-300 rounded-lg focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none transition appearance-none bg-white"
                                     required
                                 >
-                                    <option value="">Pilih Role</option>
                                     <option value="manager_stock">Manager Stock</option>
                                     <option value="vendor">Vendor</option>
-                                    <option value="admin">Admin</option>
                                 </select>
                                 <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                     <svg class="h-5 w-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -131,7 +129,7 @@
                                 <input 
                                     type="text" 
                                     id="full_name" 
-                                    name="full_name" 
+                                    name="name" 
                                     class="w-full pl-10 pr-4 py-2.5 border border-neutral-300 rounded-lg focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none transition"
                                     placeholder="John Doe"
                                     required
