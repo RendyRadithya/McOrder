@@ -67,7 +67,7 @@
                 <!-- Right Image -->
                 <div class="relative">
                     <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-2xl p-4">
-                        <img src="https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800&h=600&fit=crop" 
+                        <img src="images/Mcdonald Citra Garden.jpg" 
                              alt="McDonald's Restaurant" 
                              class="rounded-xl w-full h-auto shadow-2xl">
                     </div>
