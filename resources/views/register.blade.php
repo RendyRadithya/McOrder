@@ -188,7 +188,7 @@
 
                         <!-- Nama Store -->
                         <div>
-                            <label for="store_name" class="block text-sm font-semibold text-neutral-700 mb-2">Nama Store</label>
+                            <label id="storeLabel" for="store_name" class="block text-sm font-semibold text-neutral-700 mb-2">Nama Store</label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <svg class="h-5 w-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -393,6 +393,10 @@
                 3: 'Password'
             };
             document.getElementById('step-name').textContent = stepNames[step];
+            // Ensure store label is correct when moving between steps
+            if (typeof window.updateStoreLabel === 'function') {
+                window.updateStoreLabel();
+            }
         }
 
         function prevStep(step) {
@@ -427,6 +431,26 @@
                     this.classList.remove('border-red-500', 'ring-1', 'ring-red-500');
                 });
             });
+
+            // Switch "Nama Store" label to "Nama Vendor" when role is vendor
+            const roleSelect = document.getElementById('role');
+            const storeLabel = document.getElementById('storeLabel');
+            const storeInput = document.getElementById('store_name');
+
+            // Expose update function globally so other handlers (like nextStep) can call it
+            window.updateStoreLabel = function() {
+                if (!roleSelect || !storeLabel || !storeInput) return;
+                const isVendor = roleSelect.value === 'vendor';
+                storeLabel.textContent = isVendor ? 'Nama Vendor' : 'Nama Store';
+                // Update placeholder to give clearer hint for vendor
+                storeInput.placeholder = isVendor ? 'Nama Vendor' : 'Mcd';
+            };
+
+            if (roleSelect) {
+                roleSelect.addEventListener('change', window.updateStoreLabel);
+                // Initialize on load
+                window.updateStoreLabel();
+            }
         });
 
         // Submit form with validation
