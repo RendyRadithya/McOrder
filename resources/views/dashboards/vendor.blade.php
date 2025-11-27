@@ -293,6 +293,24 @@
         </div>
     </div>
 
+    <!-- Reject Confirmation Modal (with reason) -->
+    <div id="reject-modal" class="fixed inset-0 hidden items-center justify-center" style="background-color: rgba(0,0,0,0.5); z-index: 100001">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4" style="position:relative; z-index:100002">
+            <div class="p-6">
+                <h3 class="text-lg font-semibold text-neutral-900 mb-2">Tolak Pesanan</h3>
+                <p id="reject-message" class="text-sm text-neutral-600 mb-4">Anda yakin ingin menolak pesanan <span id="reject-order-number">-</span>? Tindakan ini tidak dapat dibatalkan.</p>
+
+                <label class="block text-sm font-medium text-neutral-700 mb-2">Alasan Penolakan <span class="text-red-500">*</span></label>
+                <textarea id="reject-reason" class="w-full border border-neutral-200 rounded-md p-3 mb-4" rows="3" placeholder="Jelaskan alasan penolakan pesanan..."></textarea>
+
+                <div class="flex justify-end gap-3">
+                    <button id="reject-cancel" class="px-4 py-2 rounded-lg border">Batal</button>
+                    <button id="reject-confirm" class="px-4 py-2 rounded-lg bg-red-500 text-white">Ya, Tolak Pesanan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Vendor order modal logic -->
         @push('scripts')
     <script>
@@ -339,6 +357,9 @@
                     currentStatus = o.status;
 
                     document.getElementById('vo-order-number').textContent = o.order_number || '-';
+                    // update modal sub header to show the actual order number instead of placeholder
+                    const subEl = document.getElementById('vo-sub');
+                    if(subEl) subEl.textContent = (o.order_number || 'ORD-xxxx') + ' - Informasi Lengkap Pesanan';
                     document.getElementById('vo-order-date').textContent = new Date(o.created_at).toLocaleDateString('id-ID');
                     document.getElementById('vo-product').textContent = o.product_name || '-';
                     document.getElementById('vo-qty').textContent = (o.quantity || '-') + ' unit';
@@ -402,7 +423,7 @@
                 const newShip = document.getElementById('vo-ship');
 
                 if(newAccept) newAccept.onclick = () => updateStatus('confirmed');
-                if(newReject) newReject.onclick = () => updateStatus('rejected');
+                if(newReject) newReject.onclick = () => showRejectDialog();
                 if(newProcess) newProcess.onclick = () => updateStatus('in_progress');
                 if(newShip) newShip.onclick = () => updateStatus('shipped');
             }
@@ -482,6 +503,65 @@
                 }, () => {
                     // user cancelled - nothing to do
                 });
+            }
+
+            // Show Reject Dialog: populate order number and open modal
+            function showRejectDialog(){
+                const rm = document.getElementById('reject-modal');
+                const orderNumEl = document.getElementById('reject-order-number');
+                const reasonEl = document.getElementById('reject-reason');
+                if(!rm || !orderNumEl || !reasonEl) return;
+                orderNumEl.textContent = document.getElementById('vo-order-number').textContent || '-';
+                reasonEl.value = '';
+                rm.classList.remove('hidden'); rm.classList.add('flex');
+
+                // wire buttons (ensure no duplicate handlers)
+                const cancelBtn = document.getElementById('reject-cancel');
+                const confirmBtn = document.getElementById('reject-confirm');
+
+                function cleanup(){
+                    rm.classList.add('hidden'); rm.classList.remove('flex');
+                    cancelBtn.removeEventListener('click', cancelHandler);
+                    confirmBtn.removeEventListener('click', confirmHandler);
+                }
+
+                function cancelHandler(){ cleanup(); }
+
+                async function confirmHandler(){
+                    const reason = reasonEl.value.trim();
+                    if(!reason){ alert('Alasan penolakan wajib diisi'); reasonEl.focus(); return; }
+                    // disable button to prevent double submit
+                    confirmBtn.disabled = true; confirmBtn.classList.add('opacity-60', 'cursor-not-allowed');
+                    try{
+                        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                        const res = await fetch('/vendor/orders/' + currentOrderId + '/status', {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type':'application/json',
+                                'X-CSRF-TOKEN': token,
+                                'Accept':'application/json'
+                            },
+                            body: JSON.stringify({ status: 'rejected', reason: reason })
+                        });
+                        const body = await res.json();
+                        if(body.success){
+                            alert(body.message || 'Pesanan ditolak');
+                            cleanup();
+                            closeModal();
+                            location.reload();
+                        } else {
+                            alert(body.message || 'Gagal menolak pesanan');
+                            confirmBtn.disabled = false; confirmBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+                        }
+                    }catch(err){
+                        console.error(err);
+                        alert('Terjadi kesalahan saat menghubungi server');
+                        confirmBtn.disabled = false; confirmBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+                    }
+                }
+
+                cancelBtn.addEventListener('click', cancelHandler);
+                confirmBtn.addEventListener('click', confirmHandler);
             }
         })();
     </script>
