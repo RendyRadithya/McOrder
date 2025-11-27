@@ -279,6 +279,20 @@
         </div>
     </div>
 
+    <!-- Action Confirm Modal (centered) -->
+    <div id="action-confirm-modal" class="fixed inset-0 hidden items-center justify-center" style="background-color: rgba(0,0,0,0.5); z-index: 99999">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4" style="position:relative; z-index:100000">
+            <div class="p-6">
+                <h3 class="text-lg font-semibold text-neutral-900 mb-2">Konfirmasi</h3>
+                <p id="action-confirm-message" class="text-sm text-neutral-600 mb-6">Apakah Anda yakin?</p>
+                <div class="flex justify-end gap-3">
+                    <button id="action-confirm-no" class="px-4 py-2 rounded-lg border font-medium">Tidak</button>
+                    <button id="action-confirm-yes" class="px-4 py-2 rounded-lg bg-red-600 text-white font-medium">Ya</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Vendor order modal logic -->
         @push('scripts')
     <script>
@@ -408,35 +422,66 @@
             if(closeTop) closeTop.addEventListener('click', closeModal);
             if(closeBtn) closeBtn.addEventListener('click', closeModal);
 
-            // Update Status Action
+            // Centered confirmation dialog helper
+            function showConfirmDialog(message, onYes, onNo){
+                const cm = document.getElementById('action-confirm-modal');
+                const msgEl = document.getElementById('action-confirm-message');
+                const yesBtn = document.getElementById('action-confirm-yes');
+                const noBtn = document.getElementById('action-confirm-no');
+                if(!cm || !msgEl || !yesBtn || !noBtn){ if(typeof onNo === 'function') onNo(); return; }
+                msgEl.textContent = message;
+                cm.classList.remove('hidden'); cm.classList.add('flex');
+
+                function cleanup(){
+                    cm.classList.add('hidden'); cm.classList.remove('flex');
+                    yesBtn.removeEventListener('click', yesHandler);
+                    noBtn.removeEventListener('click', noHandler);
+                }
+
+                function yesHandler(){ cleanup(); if(typeof onYes === 'function') onYes(); }
+                function noHandler(){ cleanup(); if(typeof onNo === 'function') onNo(); }
+
+                yesBtn.addEventListener('click', yesHandler);
+                noBtn.addEventListener('click', noHandler);
+            }
+
+            // Update Status Action (uses centered confirm dialog)
             async function updateStatus(status){
                 if(!currentOrderId) return;
-                if(!confirm('Ubah status pesanan menjadi ' + status + '?')) return;
-                
-                try{
-                    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                    const res = await fetch('/vendor/orders/' + currentOrderId + '/status', { 
-                        method: 'PATCH', 
-                        headers: {
-                            'Content-Type':'application/json',
-                            'X-CSRF-TOKEN': token, 
-                            'Accept':'application/json'
-                        }, 
-                        body: JSON.stringify({ status: status }) 
-                    });
-                    const body = await res.json();
-                    
-                    if(body.success){ 
-                        alert(body.message); 
-                        closeModal(); 
-                        location.reload(); 
-                    } else { 
-                        alert(body.message || 'Gagal memperbarui status'); 
+
+                // friendly message for actions
+                let msg = 'Ubah status pesanan menjadi ' + status + '?';
+                if(status === 'confirmed') msg = 'Apakah Anda yakin untuk terima pesanan?';
+                if(status === 'rejected') msg = 'apakah Anda yakin untuk tolak pesanan ?';
+
+                showConfirmDialog(msg, async () => {
+                    try{
+                        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                        const res = await fetch('/vendor/orders/' + currentOrderId + '/status', { 
+                            method: 'PATCH', 
+                            headers: {
+                                'Content-Type':'application/json',
+                                'X-CSRF-TOKEN': token, 
+                                'Accept':'application/json'
+                            }, 
+                            body: JSON.stringify({ status: status }) 
+                        });
+                        const body = await res.json();
+                        
+                        if(body.success){ 
+                            alert(body.message); 
+                            closeModal(); 
+                            location.reload(); 
+                        } else { 
+                            alert(body.message || 'Gagal memperbarui status'); 
+                        }
+                    }catch(err){ 
+                        console.error(err); 
+                        alert('Terjadi kesalahan saat menghubungi server'); 
                     }
-                }catch(err){ 
-                    console.error(err); 
-                    alert('Terjadi kesalahan saat menghubungi server'); 
-                }
+                }, () => {
+                    // user cancelled - nothing to do
+                });
             }
         })();
     </script>
