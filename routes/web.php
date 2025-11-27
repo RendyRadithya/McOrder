@@ -251,6 +251,21 @@ Route::middleware('auth')->group(function () {
         return response()->json(['success' => true]);
     });
 
+    // Download/preview invoice as PDF (opens inline in browser)
+    Route::get('/orders/{id}/invoice/download', function ($id) {
+        $order = Order::findOrFail($id);
+
+        $data = ['order' => $order];
+
+        if (class_exists(\Barryvdh\DomPDF\Facade\Pdf::class)) {
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('orders.invoice_pdf', $data)->setPaper('a4', 'portrait');
+            return $pdf->stream('invoice-' . ($order->order_number ?? $order->id) . '.pdf');
+        }
+
+        // Fallback: render HTML so browser can print/save as PDF
+        return response()->view('orders.invoice_pdf', $data);
+    })->name('orders.invoice.download');
+
     Route::get('/vendor/orders', [VendorOrderController::class, 'index'])->name('vendor.orders.index');
     Route::patch('/vendor/orders/{id}/status', [VendorOrderController::class, 'updateStatus'])->name('vendor.orders.updateStatus');
 

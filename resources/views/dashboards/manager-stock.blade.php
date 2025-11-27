@@ -185,7 +185,7 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                             </svg>
                                         </button>
-                                        <button class="p-1 hover:bg-neutral-100 rounded transition" title="Download">
+                                        <button class="p-1 hover:bg-neutral-100 rounded transition btn-download" title="Download" data-id="{{ $order->id }}">
                                             <svg class="w-5 h-5 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                                             </svg>
@@ -689,6 +689,17 @@
                 e.preventDefault();
                 loadTracking(id);
             }, { passive: false });
+
+            // Open invoice PDF in a new tab (browser will show preview)
+            document.addEventListener('pointerdown', function(e){
+                const dl = e.target.closest('.btn-download');
+                if(!dl) return;
+                const id = dl.dataset.id;
+                if(!id) return;
+                e.preventDefault();
+                const url = '/orders/' + id + '/invoice/download';
+                window.open(url, '_blank');
+            }, { passive: true });
 
             if(trackingCloseBtn) trackingCloseBtn.addEventListener('click', closeTrackingModal);
             if(trackingClose) trackingClose.addEventListener('click', closeTrackingModal);
