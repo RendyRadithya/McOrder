@@ -324,6 +324,50 @@
             let currentOrderId = null;
             let currentStatus = null;
 
+            // Helper: set textContent only if element exists (avoid throwing when element missing)
+            function setTextIfExists(idOrEl, text){
+                try{
+                    const el = (typeof idOrEl === 'string') ? document.getElementById(idOrEl) : idOrEl;
+                    if(!el){
+                        console.warn('[vendor] missing element for setTextIfExists', idOrEl, text);
+                        return false;
+                    }
+                    el.textContent = text;
+                    return true;
+                }catch(err){
+                    console.error('[vendor] setTextIfExists error', idOrEl, err);
+                    return false;
+                }
+            }
+
+            function setInnerHTMLIfExists(idOrEl, html){
+                try{
+                    const el = (typeof idOrEl === 'string') ? document.getElementById(idOrEl) : idOrEl;
+                    if(!el){
+                        console.warn('[vendor] missing element for setInnerHTMLIfExists', idOrEl);
+                        return false;
+                    }
+                    el.innerHTML = html;
+                    return true;
+                }catch(err){
+                    console.error('[vendor] setInnerHTMLIfExists error', idOrEl, err);
+                    return false;
+                }
+            }
+
+            // Lightweight non-blocking toast so we don't interrupt debugging flow with alerts
+            function showToast(message, opts = {}){
+                try{
+                    const t = document.createElement('div');
+                    t.className = 'fixed top-6 right-6 bg-black text-white px-4 py-3 rounded shadow-lg z-50 max-w-sm text-sm';
+                    t.style.opacity = '0.98';
+                    t.textContent = message;
+                    document.body.appendChild(t);
+                    setTimeout(()=>{ t.remove(); }, opts.duration || 4000);
+                    return t;
+                }catch(err){ console.error('[vendor] showToast error', err); }
+            }
+
             // Real-time listener (keep existing if working, otherwise ignore for now)
             if(window.Echo){
                 window.Echo.channel('vendor.{{ Auth::id() }}')
@@ -349,44 +393,53 @@
 
             async function loadOrder(id){
                 try{
-                    const res = await fetch('/orders/' + id + '/tracking');
-                    if(!res.ok) throw new Error('Gagal memuat pesanan');
-                    const body = await res.json();
+                        const res = await fetch('/orders/' + id + '/tracking');
+                        let body;
+                        if(!res.ok){
+                            try{
+                                body = await res.json();
+                            }catch(e){
+                                console.error('Non-JSON error response while loading order', e);
+                                throw new Error('Gagal memuat pesanan (server error)');
+                            }
+                            console.error('Server returned error when loading order:', body);
+                            throw new Error(body.message || 'Gagal memuat pesanan: ' + (body.error || 'unknown'));
+                        }
+                        body = await res.json();
                     const o = body.order;
                     currentOrderId = o.id;
                     currentStatus = o.status;
 
-                    document.getElementById('vo-order-number').textContent = o.order_number || '-';
+                    setTextIfExists('vo-order-number', o.order_number || '-');
                     // update modal sub header to show the actual order number instead of placeholder
-                    const subEl = document.getElementById('vo-sub');
-                    if(subEl) subEl.textContent = (o.order_number || 'ORD-xxxx') + ' - Informasi Lengkap Pesanan';
-                    document.getElementById('vo-order-date').textContent = new Date(o.created_at).toLocaleDateString('id-ID');
-                    document.getElementById('vo-product').textContent = o.product_name || '-';
-                    document.getElementById('vo-qty').textContent = (o.quantity || '-') + ' unit';
-                    document.getElementById('vo-estimated').textContent = o.estimated_delivery ? new Date(o.estimated_delivery).toLocaleDateString('id-ID') : '-';
-                    document.getElementById('vo-total').textContent = (function(v){ return 'Rp ' + Number(v||0).toLocaleString('id-ID'); })(o.total_price);
-                    document.getElementById('vo-notes').textContent = o.notes || '-';
+                    setTextIfExists('vo-sub', (o.order_number || 'ORD-xxxx') + ' - Informasi Lengkap Pesanan');
+                    setTextIfExists('vo-order-date', new Date(o.created_at).toLocaleDateString('id-ID'));
+                    setTextIfExists('vo-product', o.product_name || '-');
+                    setTextIfExists('vo-qty', (o.quantity || '-') + ' unit');
+                    setTextIfExists('vo-estimated', o.estimated_delivery ? new Date(o.estimated_delivery).toLocaleDateString('id-ID') : '-');
+                    setTextIfExists('vo-total', (function(v){ return 'Rp ' + Number(v||0).toLocaleString('id-ID'); })(o.total_price));
+                    setTextIfExists('vo-notes', o.notes || '-');
                     
                     // status badge
-                    document.getElementById('vo-status-badge').textContent = body.status_label || (o.status||'-');
+                    setTextIfExists('vo-status-badge', body.status_label || (o.status||'-'));
                     
                     // Update buttons based on status
                     updateModalButtons(o.status);
 
                     // vendor/store info (buyer)
-                    const storeEl = document.getElementById('vo-store-info');
-                    storeEl.innerHTML = '';
-                    // In vendor view, we want to see who ordered (Manager Stock / User)
-                    // The API returns 'vendor' as the one who fulfills, but here we might want the buyer info if available.
-                    // For now, let's just show the vendor name (self) or maybe the user who ordered if we had that info in API.
-                    // The current API /orders/{id}/tracking returns 'vendor' (which is us).
-                    // Let's just keep it as is or hide it.
-                     if(body.vendor){
-                        storeEl.innerHTML = `<div class="font-medium">Pemesanan via: ${body.vendor.store_name || body.vendor.name}</div>`;
+                    if(body.vendor){
+                        setInnerHTMLIfExists('vo-store-info', `<div class="font-medium">Pemesanan via: ${body.vendor.store_name || body.vendor.name}</div>`);
+                    } else {
+                        // clear if present
+                        setInnerHTMLIfExists('vo-store-info', '');
                     }
                     
                     openModal();
-                }catch(err){ console.error(err); alert('Gagal memuat detail pesanan'); }
+                }catch(err){
+                    console.error('Load order error:', err);
+                    showToast('Gagal memuat detail pesanan: ' + (err.message || err));
+                    currentOrderId = null;
+                }
             }
 
             function updateModalButtons(status){
@@ -395,8 +448,16 @@
                 // Actually the buttons are in a different div in the HTML: 
                 // <div class="flex items-start justify-between"> ... buttons ... </div>
                 
-                // Let's find the button container in the top section
-                const btnContainer = document.querySelector('#vo-accept').parentElement;
+                // Find the button container in the top section. Guard against missing #vo-accept.
+                let btnContainer = null;
+                const acceptEl = document.getElementById('vo-accept');
+                if(acceptEl && acceptEl.parentElement){
+                    btnContainer = acceptEl.parentElement;
+                } else {
+                    // fallback: select the top section that contains action buttons
+                    btnContainer = document.querySelector('#vendor-order-modal .flex.items-start.justify-between');
+                }
+                if(!btnContainer){ console.warn('Button container not found for order modal'); return; }
                 btnContainer.innerHTML = ''; // Clear
 
                 if(status === 'pending'){
@@ -428,17 +489,17 @@
                 if(newShip) newShip.onclick = () => updateStatus('shipped');
             }
 
-            // delegate clicks on table for buttons
-            const table = document.querySelector('table');
-            if(table) {
-                table.addEventListener('click', function(e){
-                    const btn = e.target.closest('.btn-order-detail');
-                    if(!btn) return;
-                    const id = btn.dataset.id;
-                    if(!id) return;
-                    loadOrder(id);
-                });
-            }
+            // delegate pointerdown for order detail buttons so the handler fires promptly
+            document.addEventListener('pointerdown', function(e){
+                const btn = e.target.closest('.btn-order-detail');
+                if(!btn) return;
+                const id = btn.dataset.id;
+                console.log('[vendor] order-detail click', { id });
+                if(!id) return;
+                // prevent default to avoid focus issues on some browsers
+                e.preventDefault();
+                loadOrder(id);
+            }, { passive: false });
 
             if(closeTop) closeTop.addEventListener('click', closeModal);
             if(closeBtn) closeBtn.addEventListener('click', closeModal);
@@ -490,15 +551,15 @@
                         const body = await res.json();
                         
                         if(body.success){ 
-                            alert(body.message); 
+                            showToast(body.message || 'Status berhasil diperbarui'); 
                             closeModal(); 
                             location.reload(); 
                         } else { 
-                            alert(body.message || 'Gagal memperbarui status'); 
+                            showToast(body.message || 'Gagal memperbarui status'); 
                         }
                     }catch(err){ 
                         console.error(err); 
-                        alert('Terjadi kesalahan saat menghubungi server'); 
+                        showToast('Terjadi kesalahan saat menghubungi server'); 
                     }
                 }, () => {
                     // user cancelled - nothing to do
@@ -511,7 +572,9 @@
                 const orderNumEl = document.getElementById('reject-order-number');
                 const reasonEl = document.getElementById('reject-reason');
                 if(!rm || !orderNumEl || !reasonEl) return;
-                orderNumEl.textContent = document.getElementById('vo-order-number').textContent || '-';
+                // guard reading vo-order-number
+                const voNumEl = document.getElementById('vo-order-number');
+                orderNumEl.textContent = voNumEl ? voNumEl.textContent || '-' : '-';
                 reasonEl.value = '';
                 rm.classList.remove('hidden'); rm.classList.add('flex');
 
@@ -529,7 +592,7 @@
 
                 async function confirmHandler(){
                     const reason = reasonEl.value.trim();
-                    if(!reason){ alert('Alasan penolakan wajib diisi'); reasonEl.focus(); return; }
+                    if(!reason){ showToast('Alasan penolakan wajib diisi'); reasonEl.focus(); return; }
                     // disable button to prevent double submit
                     confirmBtn.disabled = true; confirmBtn.classList.add('opacity-60', 'cursor-not-allowed');
                     try{
@@ -545,17 +608,17 @@
                         });
                         const body = await res.json();
                         if(body.success){
-                            alert(body.message || 'Pesanan ditolak');
+                            showToast(body.message || 'Pesanan ditolak');
                             cleanup();
                             closeModal();
                             location.reload();
                         } else {
-                            alert(body.message || 'Gagal menolak pesanan');
+                            showToast(body.message || 'Gagal menolak pesanan');
                             confirmBtn.disabled = false; confirmBtn.classList.remove('opacity-60', 'cursor-not-allowed');
                         }
                     }catch(err){
                         console.error(err);
-                        alert('Terjadi kesalahan saat menghubungi server');
+                        showToast('Terjadi kesalahan saat menghubungi server');
                         confirmBtn.disabled = false; confirmBtn.classList.remove('opacity-60', 'cursor-not-allowed');
                     }
                 }

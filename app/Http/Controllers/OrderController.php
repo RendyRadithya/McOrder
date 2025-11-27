@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use App\Models\Order;
 use App\Models\User;
 use App\Models\OrderEvent;
+use Illuminate\Support\Facades\Schema;
 
 class OrderController extends Controller
 {
@@ -107,9 +108,19 @@ class OrderController extends Controller
             $vendor = User::where('store_name', $order->vendor_name)->orWhere('name', $order->vendor_name)->first();
         }
 
-        // prefer real events from order_events table if available
-        $events = OrderEvent::where('order_id', $order->id)->orderBy('created_at')->get();
+        // prefer real events from order_events table if available (guard if migrations not applied)
+        $events = collect();
         $timeline = [];
+        try {
+            if (Schema::hasTable('order_events')) {
+                $events = OrderEvent::where('order_id', $order->id)->orderBy('created_at')->get();
+            }
+        } catch (\Exception $e) {
+            // If something goes wrong (missing table / connection), fallback to heuristic timeline below
+            \Log::warning('OrderController::tracking - order_events unavailable: ' . $e->getMessage());
+            $events = collect();
+        }
+
         if ($events->count() > 0) {
             foreach ($events as $ev) {
                 $timeline[] = [

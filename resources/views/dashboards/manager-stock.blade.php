@@ -633,24 +633,34 @@
                     }
                     
                     const o = body.order;
-                    document.getElementById('ti-order-number').textContent = o.order_number || '-';
-                    document.getElementById('tracking-sub').textContent = (o.order_number || '') + ' - ' + (body.status_label || '');
-                    document.getElementById('ti-order-date').textContent = new Date(o.created_at).toLocaleString('id-ID');
-                    document.getElementById('ti-product').textContent = o.product_name || '-';
-                    document.getElementById('ti-qty').textContent = (o.quantity || '-') + ' unit';
-                    document.getElementById('ti-total').textContent = formatRp(o.total_price);
-                    if(body.vendor){
-                        document.getElementById('ti-vendor-name').textContent = body.vendor.store_name || body.vendor.name || '-';
-                        document.getElementById('ti-vendor-phone').textContent = body.vendor.phone || '-';
-                        document.getElementById('ti-vendor-email').textContent = body.vendor.email || '-';
-                        document.getElementById('ti-vendor-avatar').textContent = (body.vendor.store_name || body.vendor.name || 'V').charAt(0).toUpperCase();
-                    } else {
-                        document.getElementById('ti-vendor-name').textContent = o.vendor_name || '-';
-                        document.getElementById('ti-vendor-phone').textContent = '-';
-                        document.getElementById('ti-vendor-email').textContent = '-';
-                        document.getElementById('ti-vendor-avatar').textContent = (o.vendor_name||'V').charAt(0).toUpperCase();
+                    if(!o){ throw new Error('Order data missing from response'); }
+
+                    function setTextIfExists(id, value){
+                        const el = document.getElementById(id);
+                        if(!el){ console.warn('Missing element #' + id); return; }
+                        el.textContent = value;
                     }
-                    document.getElementById('ti-resi').textContent = body.tracking_number || '-';
+
+                    setTextIfExists('ti-order-number', o.order_number || '-');
+                    setTextIfExists('tracking-sub', (o.order_number || '') + ' - ' + (body.status_label || ''));
+                    setTextIfExists('ti-order-date', new Date(o.created_at).toLocaleString('id-ID'));
+                    setTextIfExists('ti-product', o.product_name || '-');
+                    setTextIfExists('ti-qty', (o.quantity || '-') + ' unit');
+                    setTextIfExists('ti-total', formatRp(o.total_price));
+
+                    if(body.vendor){
+                        setTextIfExists('ti-vendor-name', body.vendor.store_name || body.vendor.name || '-');
+                        setTextIfExists('ti-vendor-phone', body.vendor.phone || '-');
+                        setTextIfExists('ti-vendor-email', body.vendor.email || '-');
+                        const avatarEl = document.getElementById('ti-vendor-avatar'); if(avatarEl) avatarEl.textContent = (body.vendor.store_name || body.vendor.name || 'V').charAt(0).toUpperCase();
+                    } else {
+                        setTextIfExists('ti-vendor-name', o.vendor_name || '-');
+                        setTextIfExists('ti-vendor-phone', '-');
+                        setTextIfExists('ti-vendor-email', '-');
+                        const avatarEl = document.getElementById('ti-vendor-avatar'); if(avatarEl) avatarEl.textContent = (o.vendor_name||'V').charAt(0).toUpperCase();
+                    }
+
+                    setTextIfExists('ti-resi', body.tracking_number || '-');
                     renderTimeline(body.timeline || []);
                     trackingConfirm.dataset.orderId = orderId;
                     
@@ -669,13 +679,16 @@
                 }
             }
 
-            document.querySelector('table').addEventListener('click', function(e){
+            // delegate pointerdown for tracking buttons so it responds immediately
+            document.addEventListener('pointerdown', function(e){
                 const btn = e.target.closest('.btn-tracking');
                 if(!btn) return;
                 const id = btn.dataset.id;
+                console.log('[manager] tracking click', { id });
                 if(!id) return;
+                e.preventDefault();
                 loadTracking(id);
-            });
+            }, { passive: false });
 
             if(trackingCloseBtn) trackingCloseBtn.addEventListener('click', closeTrackingModal);
             if(trackingClose) trackingClose.addEventListener('click', closeTrackingModal);

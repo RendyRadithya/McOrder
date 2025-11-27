@@ -23,5 +23,9 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+        // seed order events for example orders (if any exist)
+        if (class_exists(\Database\Seeders\OrderEventsSeeder::class)) {
+            $this->call(\Database\Seeders\OrderEventsSeeder::class);
+        }
     }
 }
