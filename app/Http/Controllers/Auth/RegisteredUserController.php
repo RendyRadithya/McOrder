@@ -50,8 +50,14 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        Auth::login($user);
+        // Notify all admins about new user registration
+        $admins = User::where('role', 'admin')->get();
+        foreach ($admins as $admin) {
+            $admin->notify(new \App\Notifications\NewUserRegistrationNotification($user));
+        }
 
-        return redirect(route('dashboard', absolute: false));
+        // Auth::login($user);
+
+        return redirect(route('login'))->with('status', 'Registrasi berhasil! Akun Anda menunggu persetujuan admin.');
     }
 }

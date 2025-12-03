@@ -49,6 +49,15 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        $user = Auth::user();
+        if (!$user->is_approved) {
+            Auth::logout();
+            
+            throw ValidationException::withMessages([
+                'email' => 'Akun Anda belum disetujui oleh admin. Harap tunggu persetujuan.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 

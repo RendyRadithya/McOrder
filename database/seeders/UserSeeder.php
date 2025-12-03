@@ -52,6 +52,7 @@ class UserSeeder extends Seeder
                     'role' => $userData['role'],
                     'phone' => $userData['phone'],
                     'store_name' => $userData['store_name'],
+                    'is_approved' => true,
                 ]
             );
         }

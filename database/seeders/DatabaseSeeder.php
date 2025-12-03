@@ -15,14 +15,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Create default users (Admin, Manager Stock, Vendor)
+        $this->call(UserSeeder::class);
+        
         // generate sample products for vendors
         $this->call(ProductSeeder::class);
 
-        // keep a simple test user
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
         // seed order events for example orders (if any exist)
         if (class_exists(\Database\Seeders\OrderEventsSeeder::class)) {
             $this->call(\Database\Seeders\OrderEventsSeeder::class);

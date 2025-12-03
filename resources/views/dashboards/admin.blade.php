@@ -41,6 +41,82 @@
                 
                 <!-- User Info & Logout -->
                 <div class="flex items-center gap-4">
+                    <!-- Notification Bell -->
+                    <div x-data="{ open: false }" class="relative">
+                        <button @click="open = !open" class="relative p-2 text-neutral-600 hover:text-neutral-900 transition">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                            </svg>
+                            @if($unreadNotifications->count() > 0)
+                                <span class="absolute top-1 right-1 h-5 w-5 bg-red-600 rounded-full border-2 border-white flex items-center justify-center">
+                                    <span class="text-white text-xs font-bold">{{ $unreadNotifications->count() }}</span>
+                                </span>
+                            @endif
+                        </button>
+
+                        <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-neutral-100 z-50 py-2" style="display: none;">
+                            <div class="px-4 py-2 border-b border-neutral-100 flex justify-between items-center">
+                                <h3 class="font-semibold text-sm">Notifikasi</h3>
+                                @if($unreadNotifications->count() > 0)
+                                    <span class="text-xs text-neutral-500">{{ $unreadNotifications->count() }} baru</span>
+                                @endif
+                            </div>
+                            <div class="max-h-96 overflow-y-auto">
+                                @forelse($unreadNotifications->take(10) as $notification)
+                                    <a href="{{ route('admin.approvals') }}" class="block px-4 py-3 hover:bg-neutral-50 border-b border-neutral-50 last:border-0 {{ $notification->read_at ? 'opacity-60' : 'bg-blue-50/30' }} transition">
+                                        <div class="flex items-start gap-2">
+                                            <div class="flex-1">
+                                                <div class="text-sm font-medium text-neutral-900">{{ $notification->data['message'] ?? 'Notifikasi Baru' }}</div>
+                                                @if(isset($notification->data['user_email']))
+                                                    <div class="text-xs text-neutral-600 mt-0.5">{{ $notification->data['user_email'] }}</div>
+                                                @endif
+                                                <div class="text-xs text-neutral-500 mt-1">{{ $notification->created_at->diffForHumans() }}</div>
+                                            </div>
+                                            @if(!$notification->read_at)
+                                                <div class="w-2 h-2 bg-blue-600 rounded-full mt-1 flex-shrink-0"></div>
+                                            @endif
+                                        </div>
+                                    </a>
+                                @empty
+                                    <div class="px-4 py-8 text-center text-sm text-neutral-500">
+                                        <svg class="w-12 h-12 mx-auto mb-2 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                                        </svg>
+                                        Tidak ada notifikasi
+                                    </div>
+                                @endforelse
+                            </div>
+                            
+                            @if($unreadNotifications->count() > 0 || Auth::user()->notifications->count() > 0)
+                                <div class="px-4 py-2 border-t border-neutral-100 flex gap-2">
+                                    @if($unreadNotifications->count() > 0)
+                                        <form action="{{ route('notifications.markAllRead') }}" method="POST" class="flex-1">
+                                            @csrf
+                                            <button type="submit" class="w-full text-center text-xs text-blue-600 hover:text-blue-700 font-medium py-1 hover:bg-blue-50 rounded transition">
+                                                Tandai Dibaca
+                                            </button>
+                                        </form>
+                                    @endif
+                                    <form action="{{ route('notifications.clearAll') }}" method="POST" class="flex-1" onsubmit="return confirm('Yakin ingin menghapus semua notifikasi?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="w-full text-center text-xs text-red-600 hover:text-red-700 font-medium py-1 hover:bg-red-50 rounded transition">
+                                            Hapus Semua
+                                        </button>
+                                    </form>
+                                </div>
+                            @endif
+                            
+                            @if($unreadNotifications->count() > 0)
+                                <div class="px-4 py-2 border-t border-neutral-100">
+                                    <a href="{{ route('admin.approvals') }}" class="block text-center text-sm text-blue-600 hover:text-blue-700 font-medium">
+                                        Lihat Semua Permintaan →
+                                    </a>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
                     <div class="text-right">
                         <div class="text-sm font-semibold text-neutral-900">{{ Auth::user()->name }}</div>
                         <div class="text-xs text-neutral-500">Administrator</div>
@@ -66,6 +142,60 @@
             <p class="text-sm text-neutral-500 mt-2">Administrator McOrder System</p>
         </div>
 
+        <!-- Notifications Alert -->
+        @if($unreadNotifications->count() > 0)
+            <div class="mb-8 bg-yellow-50 border border-yellow-200 rounded-xl p-6">
+                <div class="flex items-start gap-3">
+                    <svg class="w-6 h-6 text-yellow-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                    </svg>
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-yellow-900 mb-2">🔔 Notifikasi Baru ({{ $unreadNotifications->count() }})</h3>
+                        <div class="space-y-2">
+                            @foreach($unreadNotifications->take(3) as $notification)
+                                <div class="text-sm text-yellow-800 bg-white rounded p-3 border border-yellow-100">
+                                    <p class="font-medium">{{ $notification->data['message'] ?? 'Notifikasi baru' }}</p>
+                                    <p class="text-xs text-yellow-600 mt-1">{{ $notification->created_at->diffForHumans() }}</p>
+                                </div>
+                            @endforeach
+                        </div>
+                        @if($unreadNotifications->count() > 3)
+                            <p class="text-xs text-yellow-700 mt-2">+ {{ $unreadNotifications->count() - 3 }} notifikasi lainnya</p>
+                        @endif
+                        <a href="{{ route('admin.approvals') }}" class="inline-block mt-3 text-sm font-semibold text-yellow-700 hover:text-yellow-800">
+                            Lihat Semua Permintaan →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+
+        <!-- Info -->
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Approvals Card -->
+            <div class="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                        </svg>
+                    </div>
+                    @if($pendingUsersCount > 0)
+                        <span class="bg-red-100 text-red-700 text-xs font-bold px-2.5 py-1 rounded-full">{{ $pendingUsersCount }} Pending</span>
+                    @else
+                        <span class="bg-green-100 text-green-700 text-xs font-bold px-2.5 py-1 rounded-full">All Clear</span>
+                    @endif
+                </div>
+                <h3 class="text-lg font-bold text-neutral-900">Registrasi User</h3>
+                <p class="text-sm text-neutral-500 mb-4">Kelola permintaan pendaftaran user baru.</p>
+                <a href="{{ route('admin.approvals') }}" class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition">
+                    Lihat Permintaan
+                </a>
+            </div>
+        </div>
+
         <!-- Info -->
         <div class="bg-purple-50 border border-purple-200 rounded-xl p-6">
             <div class="flex items-start gap-3">
@@ -75,13 +205,6 @@
                 <div>
                     <h3 class="font-semibold text-purple-900 mb-1">Dashboard Admin Segera Hadir</h3>
                     <p class="text-sm text-purple-800">Fitur untuk monitoring dan mengelola seluruh sistem McOrder sedang dalam pengembangan.</p>
-                    <p class="text-sm text-purple-700 mt-2">Fitur yang akan tersedia:</p>
-                    <ul class="list-disc list-inside text-sm text-purple-700 mt-1 space-y-1">
-                        <li>Overview semua pesanan dari semua user</li>
-                        <li>Manajemen user dan vendor</li>
-                        <li>Laporan dan statistik lengkap</li>
-                        <li>Pengaturan sistem</li>
-                    </ul>
                 </div>
             </div>
         </div>

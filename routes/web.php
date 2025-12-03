@@ -84,7 +84,9 @@ Route::get('/dashboard', function () {
     }
 
     if ($user->role === 'admin') {
-        return view('dashboards.admin');
+        $pendingUsersCount = \App\Models\User::where('is_approved', false)->count();
+        $unreadNotifications = $user->unreadNotifications;
+        return view('dashboards.admin', compact('pendingUsersCount', 'unreadNotifications'));
     }
 
     return view('dashboard');
@@ -272,6 +274,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Admin Routes
+    Route::get('/admin/approvals', [\App\Http\Controllers\AdminController::class, 'index'])->name('admin.approvals');
+    Route::post('/admin/approvals/{id}', [\App\Http\Controllers\AdminController::class, 'approve'])->name('admin.approve');
+    Route::delete('/admin/approvals/{id}', [\App\Http\Controllers\AdminController::class, 'reject'])->name('admin.reject');
+    
+    // Notification Routes
+    Route::post('/notifications/mark-all-read', [\App\Http\Controllers\AdminController::class, 'markAllAsRead'])->name('notifications.markAllRead');
+    Route::delete('/notifications/clear-all', [\App\Http\Controllers\AdminController::class, 'clearAll'])->name('notifications.clearAll');
 });
 
 require __DIR__.'/auth.php';

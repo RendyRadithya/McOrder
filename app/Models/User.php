@@ -24,6 +24,7 @@ class User extends Authenticatable
         'role',
         'phone',
         'store_name',
+        'is_approved',
     ];
 
     /**
