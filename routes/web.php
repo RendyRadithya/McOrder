@@ -154,6 +154,105 @@ Route::get('/riwayat-pesanan', function () {
     return view('dashboards.order-history', compact('orders', 'vendors', 'stats'));
 })->middleware(['auth', 'verified'])->name('order.history');
 
+// Export Orders to CSV/Excel
+Route::get('/riwayat-pesanan/export', function () {
+    $user = Auth::user();
+    
+    if ($user->role !== 'manager_stock') {
+        abort(403, 'Unauthorized');
+    }
+    
+    // Get filter parameters
+    $q = request('q');
+    $status = request('status');
+    $vendor = request('vendor');
+    $dateFrom = request('date_from');
+    $dateTo = request('date_to');
+    
+    // Build query
+    $ordersQuery = Order::query();
+    
+    if ($q) {
+        $ordersQuery->where(function($sub) use ($q) {
+            $sub->where('order_number', 'like', "%{$q}%")
+                ->orWhere('product_name', 'like', "%{$q}%")
+                ->orWhere('vendor_name', 'like', "%{$q}%");
+        });
+    }
+    
+    if ($status) {
+        $ordersQuery->where('status', $status);
+    }
+    
+    if ($vendor) {
+        $ordersQuery->where('vendor_name', $vendor);
+    }
+    
+    if ($dateFrom) {
+        $ordersQuery->whereDate('created_at', '>=', $dateFrom);
+    }
+    if ($dateTo) {
+        $ordersQuery->whereDate('created_at', '<=', $dateTo);
+    }
+    
+    $orders = $ordersQuery->latest()->get();
+    
+    // Status mapping
+    $statusLabels = [
+        'pending' => 'Menunggu',
+        'confirmed' => 'Dikonfirmasi',
+        'rejected' => 'Ditolak',
+        'in_progress' => 'Diproses',
+        'shipped' => 'Dikirim',
+        'completed' => 'Selesai',
+    ];
+    
+    // Create CSV content
+    $filename = 'riwayat-pesanan-' . date('Y-m-d-His') . '.csv';
+    
+    $headers = [
+        'Content-Type' => 'text/csv; charset=UTF-8',
+        'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+    ];
+    
+    $callback = function() use ($orders, $statusLabels) {
+        $file = fopen('php://output', 'w');
+        
+        // Add BOM for Excel UTF-8 compatibility
+        fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+        
+        // Header row
+        fputcsv($file, [
+            'No. Pesanan',
+            'Tanggal',
+            'Vendor',
+            'Produk',
+            'Jumlah',
+            'Total Harga',
+            'Status',
+            'Est. Pengiriman',
+        ], ';');
+        
+        // Data rows
+        foreach ($orders as $order) {
+            fputcsv($file, [
+                $order->order_number,
+                $order->created_at->format('d/m/Y'),
+                $order->vendor_name,
+                $order->product_name,
+                $order->quantity,
+                $order->total_price,
+                $statusLabels[$order->status] ?? $order->status,
+                $order->estimated_delivery ? \Carbon\Carbon::parse($order->estimated_delivery)->format('d/m/Y') : '-',
+            ], ';');
+        }
+        
+        fclose($file);
+    };
+    
+    return response()->stream($callback, 200, $headers);
+})->middleware(['auth', 'verified'])->name('order.history.export');
+
 // Product Catalog Route for Manager Stock
 Route::get('/katalog', function () {
     $user = Auth::user();
