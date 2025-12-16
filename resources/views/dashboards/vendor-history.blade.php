@@ -207,7 +207,7 @@
 </div>
 
 <!-- Order Detail Modal -->
-<div id="orderDetailModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center">
+<div id="orderDetailModal" class="fixed inset-0 bg-white/30 backdrop-blur-sm z-50 hidden items-center justify-center">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
         <div class="p-6 border-b border-gray-200 flex items-center justify-between">
             <h3 class="text-xl font-bold text-gray-800">📋 Detail Pesanan</h3>
