@@ -59,6 +59,20 @@
                                         @endif
                                     </a>
                                     @endif
+                                    @if(Auth::user()->role === 'vendor')
+                                    <a href="{{ route('vendor.reports') }}" class="relative h-16 flex items-center px-4 {{ request()->routeIs('vendor.reports') ? 'text-red-600 font-semibold' : 'text-neutral-600 hover:text-neutral-900' }} transition">
+                                        <span>Laporan Penjualan</span>
+                                        @if(request()->routeIs('vendor.reports'))
+                                            <span class="absolute left-0 bottom-0 w-full h-1 bg-red-600 rounded-t-sm"></span>
+                                        @endif
+                                    </a>
+                                    <a href="{{ route('vendor.history') }}" class="relative h-16 flex items-center px-4 {{ request()->routeIs('vendor.history') ? 'text-red-600 font-semibold' : 'text-neutral-600 hover:text-neutral-900' }} transition">
+                                        <span>Riwayat Pesanan</span>
+                                        @if(request()->routeIs('vendor.history'))
+                                            <span class="absolute left-0 bottom-0 w-full h-1 bg-red-600 rounded-t-sm"></span>
+                                        @endif
+                                    </a>
+                                    @endif
                                 </nav>
                             </div>
                         </div>
@@ -128,7 +142,11 @@
 
             <!-- Page Content -->
             <main>
-                {{ $slot }}
+                @isset($slot)
+                    {{ $slot }}
+                @else
+                    @yield('content')
+                @endisset
             </main>
         </div>
 

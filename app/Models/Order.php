@@ -26,7 +26,10 @@ class Order extends Model
     {
         return $this->belongsTo(\App\Models\User::class, 'vendor_id');
     }
-
+    public function user()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'user_id');
+    }
     protected $casts = [
         'estimated_delivery' => 'date',
         'total_price' => 'decimal:2',

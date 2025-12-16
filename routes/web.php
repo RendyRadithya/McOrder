@@ -407,6 +407,247 @@ Route::get('/laporan', function () {
     ));
 })->middleware(['auth', 'verified'])->name('reports');
 
+// Vendor Reports & Analytics
+Route::get('/vendor/laporan', function () {
+    $user = Auth::user();
+    
+    if ($user->role !== 'vendor') {
+        abort(403, 'Unauthorized');
+    }
+    
+    // Get year filter (default current year)
+    $year = request('year', date('Y'));
+    $month = request('month');
+    
+    // Monthly sales data for chart (only this vendor's orders)
+    $monthlySales = [];
+    for ($m = 1; $m <= 12; $m++) {
+        $sales = Order::where('vendor_id', $user->id)
+            ->whereYear('created_at', $year)
+            ->whereMonth('created_at', $m)
+            ->whereIn('status', ['completed', 'shipped', 'confirmed'])
+            ->sum('total_price');
+        $monthlySales[] = $sales;
+    }
+    
+    // Monthly order count
+    $monthlyOrders = [];
+    for ($m = 1; $m <= 12; $m++) {
+        $count = Order::where('vendor_id', $user->id)
+            ->whereYear('created_at', $year)
+            ->whereMonth('created_at', $m)
+            ->count();
+        $monthlyOrders[] = $count;
+    }
+    
+    // Top products (most sold by this vendor)
+    $topProducts = Order::select('product_name', \DB::raw('SUM(quantity) as total_qty'), \DB::raw('SUM(total_price) as total_revenue'))
+        ->where('vendor_id', $user->id)
+        ->whereYear('created_at', $year)
+        ->when($month, fn($q) => $q->whereMonth('created_at', $month))
+        ->whereIn('status', ['completed', 'shipped', 'confirmed'])
+        ->groupBy('product_name')
+        ->orderByDesc('total_qty')
+        ->limit(10)
+        ->get();
+    
+    // Top customers (stores that order most)
+    $topCustomers = Order::select('user_id', \DB::raw('COUNT(*) as total_orders'), \DB::raw('SUM(total_price) as total_spent'))
+        ->with('user:id,name,store_name')
+        ->where('vendor_id', $user->id)
+        ->whereYear('created_at', $year)
+        ->when($month, fn($q) => $q->whereMonth('created_at', $month))
+        ->whereIn('status', ['completed', 'shipped', 'confirmed'])
+        ->groupBy('user_id')
+        ->orderByDesc('total_spent')
+        ->limit(10)
+        ->get();
+    
+    // Order status distribution
+    $statusDistribution = Order::select('status', \DB::raw('COUNT(*) as count'))
+        ->where('vendor_id', $user->id)
+        ->whereYear('created_at', $year)
+        ->when($month, fn($q) => $q->whereMonth('created_at', $month))
+        ->groupBy('status')
+        ->get()
+        ->pluck('count', 'status')
+        ->toArray();
+    
+    // Overall statistics for this vendor
+    $stats = [
+        'total_orders' => Order::where('vendor_id', $user->id)->whereYear('created_at', $year)->when($month, fn($q) => $q->whereMonth('created_at', $month))->count(),
+        'total_revenue' => Order::where('vendor_id', $user->id)->whereYear('created_at', $year)->when($month, fn($q) => $q->whereMonth('created_at', $month))->whereIn('status', ['completed', 'shipped', 'confirmed'])->sum('total_price'),
+        'completed_orders' => Order::where('vendor_id', $user->id)->whereYear('created_at', $year)->when($month, fn($q) => $q->whereMonth('created_at', $month))->where('status', 'completed')->count(),
+        'avg_order_value' => Order::where('vendor_id', $user->id)->whereYear('created_at', $year)->when($month, fn($q) => $q->whereMonth('created_at', $month))->whereIn('status', ['completed', 'shipped', 'confirmed'])->avg('total_price') ?? 0,
+    ];
+    
+    // Available years for filter
+    $availableYears = Order::where('vendor_id', $user->id)
+        ->selectRaw('YEAR(created_at) as year')
+        ->distinct()
+        ->orderByDesc('year')
+        ->pluck('year');
+    
+    if ($availableYears->isEmpty()) {
+        $availableYears = collect([date('Y')]);
+    }
+    
+    return view('dashboards.vendor-reports', compact(
+        'monthlySales', 
+        'monthlyOrders', 
+        'topProducts', 
+        'topCustomers', 
+        'statusDistribution', 
+        'stats', 
+        'year', 
+        'month',
+        'availableYears'
+    ));
+})->middleware(['auth', 'verified'])->name('vendor.reports');
+
+// Vendor Order History
+Route::get('/vendor/riwayat', function () {
+    $user = Auth::user();
+    
+    if ($user->role !== 'vendor') {
+        abort(403, 'Unauthorized');
+    }
+    
+    // Get filter parameters
+    $q = request('q');
+    $status = request('status');
+    $dateFrom = request('date_from');
+    $dateTo = request('date_to');
+    
+    // Build query (only this vendor's orders)
+    $ordersQuery = Order::where('vendor_id', $user->id);
+    
+    // Search filter
+    if ($q) {
+        $ordersQuery->where(function($sub) use ($q) {
+            $sub->where('order_number', 'like', "%{$q}%")
+                ->orWhere('product_name', 'like', "%{$q}%");
+        });
+    }
+    
+    // Status filter
+    if ($status) {
+        $ordersQuery->where('status', $status);
+    }
+    
+    // Date range filter
+    if ($dateFrom) {
+        $ordersQuery->whereDate('created_at', '>=', $dateFrom);
+    }
+    if ($dateTo) {
+        $ordersQuery->whereDate('created_at', '<=', $dateTo);
+    }
+    
+    // Paginate results
+    $orders = $ordersQuery->with('user:id,name,store_name')->latest()->paginate(15)->withQueryString();
+    
+    // Statistics
+    $stats = [
+        'total' => Order::where('vendor_id', $user->id)->count(),
+        'completed' => Order::where('vendor_id', $user->id)->where('status', 'completed')->count(),
+        'rejected' => Order::where('vendor_id', $user->id)->where('status', 'rejected')->count(),
+        'total_revenue' => Order::where('vendor_id', $user->id)->whereIn('status', ['completed', 'shipped', 'confirmed'])->sum('total_price'),
+    ];
+    
+    return view('dashboards.vendor-history', compact('orders', 'stats'));
+})->middleware(['auth', 'verified'])->name('vendor.history');
+
+// Vendor Export Orders to CSV
+Route::get('/vendor/riwayat/export', function () {
+    $user = Auth::user();
+    
+    if ($user->role !== 'vendor') {
+        abort(403, 'Unauthorized');
+    }
+    
+    // Get filter parameters
+    $q = request('q');
+    $status = request('status');
+    $dateFrom = request('date_from');
+    $dateTo = request('date_to');
+    
+    // Build query
+    $ordersQuery = Order::where('vendor_id', $user->id)->with('user:id,name,store_name');
+    
+    if ($q) {
+        $ordersQuery->where(function($sub) use ($q) {
+            $sub->where('order_number', 'like', "%{$q}%")
+                ->orWhere('product_name', 'like', "%{$q}%");
+        });
+    }
+    
+    if ($status) {
+        $ordersQuery->where('status', $status);
+    }
+    
+    if ($dateFrom) {
+        $ordersQuery->whereDate('created_at', '>=', $dateFrom);
+    }
+    if ($dateTo) {
+        $ordersQuery->whereDate('created_at', '<=', $dateTo);
+    }
+    
+    $orders = $ordersQuery->latest()->get();
+    
+    // Status mapping
+    $statusLabels = [
+        'pending' => 'Menunggu',
+        'confirmed' => 'Dikonfirmasi',
+        'rejected' => 'Ditolak',
+        'in_progress' => 'Diproses',
+        'shipped' => 'Dikirim',
+        'completed' => 'Selesai',
+    ];
+    
+    // Create CSV content
+    $filename = 'riwayat-penjualan-' . date('Y-m-d-His') . '.csv';
+    
+    $headers = [
+        'Content-Type' => 'text/csv; charset=UTF-8',
+        'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+    ];
+    
+    $callback = function() use ($orders, $statusLabels) {
+        $file = fopen('php://output', 'w');
+        
+        // Add BOM for Excel UTF-8 compatibility
+        fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+        
+        // Header row
+        fputcsv($file, [
+            'No. Pesanan',
+            'Tanggal',
+            'Toko',
+            'Produk',
+            'Jumlah',
+            'Total Harga',
+            'Status',
+        ], ';');
+        
+        // Data rows
+        foreach ($orders as $order) {
+            fputcsv($file, [
+                $order->order_number,
+                $order->created_at->format('d/m/Y'),
+                $order->user->store_name ?? $order->user->name ?? '-',
+                $order->product_name,
+                $order->quantity,
+                $order->total_price,
+                $statusLabels[$order->status] ?? $order->status,
+            ], ';');
+        }
+        
+        fclose($file);
+    };
+    
+    return response()->stream($callback, 200, $headers);
+})->middleware(['auth', 'verified'])->name('vendor.history.export');
+
 
 use Illuminate\Http\Request;
 use App\Events\OrderCreated;
