@@ -7,8 +7,8 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
         <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-800">📊 Laporan Penjualan</h1>
-            <p class="text-gray-500 mt-2">Analisis performa penjualan Anda</p>
+            <h1 class="text-2xl font-semibold text-neutral-900">Laporan Penjualan</h1>
+            <p class="text-sm text-neutral-500 mt-1">Analisis performa penjualan Anda</p>
         </div>
 
         <!-- Filter Section -->

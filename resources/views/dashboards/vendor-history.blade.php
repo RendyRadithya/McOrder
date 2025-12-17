@@ -8,8 +8,8 @@
         <!-- Header -->
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
             <div>
-                <h1 class="text-3xl font-bold text-gray-800">📋 Riwayat Pesanan</h1>
-                <p class="text-gray-500 mt-2">Semua pesanan yang diterima</p>
+                <h1 class="text-2xl font-semibold text-neutral-900">Riwayat Pesanan</h1>
+                <p class="text-sm text-neutral-500 mt-1">Semua pesanan yang diterima</p>
             </div>
             <a href="{{ route('vendor.history.export', request()->query()) }}" 
                class="mt-4 sm:mt-0 inline-flex items-center px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold shadow-md">
