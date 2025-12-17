@@ -103,7 +103,7 @@
                     <!-- Max Price -->
                     <div>
                         <label class="block text-xs text-neutral-500 mb-1">Harga Max</label>
-                        <input type="number" name="max_price" value="{{ request('max_price') }}" placeholder="999999" class="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                        <input type="number" name="max_price" value="{{ request('max_price') }}" class="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
                     </div>
 
                     <!-- In Stock Only -->

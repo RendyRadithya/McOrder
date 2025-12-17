@@ -97,12 +97,12 @@
                 </div>
                 <div class="w-40">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Dari Tanggal</label>
-                    <input type="date" name="date_from" value="{{ request('date_from') }}" 
+                    <input type="date" name="date_from" value="{{ request('date_from') }}" min="{{ date('Y-m-d') }}"
                            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                 </div>
                 <div class="w-40">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Sampai Tanggal</label>
-                    <input type="date" name="date_to" value="{{ request('date_to') }}" 
+                    <input type="date" name="date_to" value="{{ request('date_to') }}" min="{{ date('Y-m-d') }}"
                            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                 </div>
                 <div>
