@@ -25,6 +25,7 @@ class User extends Authenticatable
         'phone',
         'store_name',
         'is_approved',
+        'profile_photo',
     ];
 
     /**

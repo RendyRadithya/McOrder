@@ -87,9 +87,13 @@
                                     <div class="font-medium text-neutral-900 truncate">{{ Auth::user()->name }}</div>
                                     <div class="text-xs text-neutral-500 truncate">{{ ucfirst(str_replace('_', ' ', Auth::user()->role)) }}</div>
                                 </div>
-                                <div class="h-10 w-10 rounded-full bg-red-600 text-white flex items-center justify-center font-semibold">
-                                    {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-                                </div>
+                                @if(Auth::user()->profile_photo)
+                                    <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}" alt="Profile" class="h-10 w-10 rounded-full object-cover border-2 border-gray-200">
+                                @else
+                                    <div class="h-10 w-10 rounded-full bg-red-600 text-white flex items-center justify-center font-semibold">
+                                        {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                                    </div>
+                                @endif
                             </button>
 
                             <!-- Dropdown Menu -->
