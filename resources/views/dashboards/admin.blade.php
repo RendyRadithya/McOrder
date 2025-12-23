@@ -122,17 +122,46 @@
                         </div>
                     </div>
 
-                    <div class="text-right">
-                        <div class="text-sm font-semibold text-neutral-900">{{ Auth::user()->name }}</div>
-                        <div class="text-xs text-neutral-500">Administrator</div>
-                    </div>
-                    <form action="{{ route('logout') }}" method="POST">
-                        @csrf
-                        <button type="submit" class="inline-flex items-center gap-2 rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 transition">
-                            <span>🚪</span>
-                            Logout
+                    <div class="relative ml-3">
+                        <button id="user-menu-button" type="button" class="flex items-center gap-3 focus:outline-none" onclick="toggleUserMenu(event)">
+                            <div class="text-right hidden md:block">
+                                <div class="font-medium text-neutral-900 truncate max-w-[150px]">{{ Auth::user()->name }}</div>
+                                <div class="text-xs text-neutral-500 truncate">Administrator</div>
+                            </div>
+                            @if(Auth::user()->profile_photo)
+                                <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}" alt="Profile" class="h-10 w-10 rounded-full object-cover border-2 border-gray-200">
+                            @else
+                                <div class="h-10 w-10 rounded-full bg-red-600 text-white flex items-center justify-center font-semibold text-lg">
+                                    {{ substr(Auth::user()->name, 0, 1) }}
+                                </div>
+                            @endif
                         </button>
-                    </form>
+
+                        <div id="user-menu" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50">
+                            <div class="px-4 py-3 border-b">
+                                <div class="text-sm font-semibold text-neutral-900">{{ Auth::user()->name }}</div>
+                                <div class="text-xs text-neutral-500 mt-0.5">Administrator</div>
+                            </div>
+                            <div class="py-1">
+                                <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                    <span>Profile</span>
+                                </a>
+
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="flex w-full items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-neutral-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7"></path>
+                                        </svg>
+                                        <span class="font-medium">Logout</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -142,7 +171,7 @@
     <main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
         <!-- Welcome Card -->
         <div class="bg-white rounded-2xl shadow-md p-8 mb-8">
-            <h1 class="text-4xl font-bold text-neutral-900 mb-2">Dashboard Admin ⚙️</h1>
+            <h1 class="text-4xl font-bold text-neutral-900 mb-2">Dashboard Admin</h1>
             <p class="text-lg text-neutral-600">Selamat datang, <span class="font-semibold text-red-600">{{ Auth::user()->name }}</span></p>
             <p class="text-sm text-neutral-500 mt-2">Administrator McOrder System</p>
         </div>
@@ -174,5 +203,22 @@
 
 
     </main>
+</main>
+    <script>
+        function toggleUserMenu(event) {
+            event.stopPropagation();
+            const menu = document.getElementById('user-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('user-menu');
+            const button = document.getElementById('user-menu-button');
+            if (menu && !menu.classList.contains('hidden') && !menu.contains(event.target) && !button.contains(event.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+    </script>
 </body>
 </html>
