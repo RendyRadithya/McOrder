@@ -8,11 +8,22 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Install PHP dependencies with Composer
-FROM composer:2 AS composer
+FROM php:8.2-cli AS composer
 WORKDIR /app
+
+# Install system deps required for Composer and some PHP extensions
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git curl unzip zip libzip-dev && rm -rf /var/lib/apt/lists/*
+
+# Install composer (global)
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
 COPY composer.json ./
 COPY composer.lock ./
+
+# Install PHP dependencies using PHP 8.2 so platform requirements match
 RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
+
 COPY . .
 COPY --from=node-builder /app/public /app/public
 RUN composer dump-autoload --optimize
