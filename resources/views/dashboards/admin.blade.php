@@ -41,7 +41,7 @@
                             <span class="text-lg font-bold text-neutral-900">McOrder</span>
                             <span class="text-xs text-neutral-500 -mt-1">McDonald's Citra Garden</span>
                         </div>
-                    @endif
+                    @endif 
                 </div>
                 
                 <!-- User Info & Logout -->
@@ -126,7 +126,10 @@
                         <button id="user-menu-button" type="button" class="flex items-center gap-3 focus:outline-none" onclick="toggleUserMenu(event)">
                             <div class="text-right hidden md:block">
                                 <div class="font-medium text-neutral-900 truncate max-w-[150px]">{{ Auth::user()->name }}</div>
-                                <div class="text-xs text-neutral-500 truncate">Administrator</div>
+                                <div class="text-xs text-neutral-500 truncate">{{ Auth::user()->role ? ucfirst(Auth::user()->role) : 'Administrator' }}</div>
+                                @if(Auth::user()->store_name)
+                                    <div class="text-[11px] text-neutral-400 truncate">{{ Auth::user()->store_name }}</div>
+                                @endif
                             </div>
                             @if(Auth::user()->profile_photo)
                                 <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}" alt="Profile" class="h-10 w-10 rounded-full object-cover border-2 border-gray-200">
@@ -140,7 +143,10 @@
                         <div id="user-menu" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50">
                             <div class="px-4 py-3 border-b">
                                 <div class="text-sm font-semibold text-neutral-900">{{ Auth::user()->name }}</div>
-                                <div class="text-xs text-neutral-500 mt-0.5">Administrator</div>
+                                <div class="text-xs text-neutral-500 mt-0.5">{{ Auth::user()->role ? ucfirst(Auth::user()->role) : 'Administrator' }}</div>
+                                @if(Auth::user()->store_name)
+                                    <div class="text-xs text-neutral-400 mt-0.5">{{ Auth::user()->store_name }}</div>
+                                @endif
                             </div>
                             <div class="py-1">
                                 <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100">
