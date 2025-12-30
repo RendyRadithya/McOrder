@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -22,10 +23,17 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:png,jpg,jpeg,gif,webp|max:10240',
         ]);
 
+        // handle image upload
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('product_images', 'public');
+            $validated['image'] = $path;
+        }
+
         $validated['vendor_id'] = auth()->id();
-        
+
         \App\Models\Product::create($validated);
 
         return redirect()->back()->with('success', 'Produk berhasil ditambahkan');
@@ -40,7 +48,18 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:png,jpg,jpeg,gif,webp|max:10240',
         ]);
+
+        // handle new image upload and delete old
+        if ($request->hasFile('image')) {
+            // delete old image if exists
+            if ($product->image && Storage::disk('public')->exists($product->image)) {
+                Storage::disk('public')->delete($product->image);
+            }
+            $path = $request->file('image')->store('product_images', 'public');
+            $validated['image'] = $path;
+        }
 
         $product->update($validated);
 

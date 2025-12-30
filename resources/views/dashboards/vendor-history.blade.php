@@ -22,8 +22,11 @@
                         <p class="text-xs text-gray-500">Total Pesanan</p>
                         <p class="text-xl font-bold text-gray-800">{{ number_format($stats['total']) }}</p>
                     </div>
-                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                        <span class="text-xl">📦</span>
+                    <div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7l9-4 9 4v10a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7l9 4 9-4"/>
+                        </svg>
                     </div>
                 </div>
             </div>
@@ -33,8 +36,10 @@
                         <p class="text-xs text-gray-500">Pesanan Selesai</p>
                         <p class="text-xl font-bold text-green-600">{{ number_format($stats['completed']) }}</p>
                     </div>
-                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                        <span class="text-xl">✅</span>
+                    <div class="w-9 h-9 bg-green-50 rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
                     </div>
                 </div>
             </div>
@@ -44,8 +49,10 @@
                         <p class="text-xs text-gray-500">Pesanan Ditolak</p>
                         <p class="text-xl font-bold text-red-600">{{ number_format($stats['rejected']) }}</p>
                     </div>
-                    <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                        <span class="text-xl">❌</span>
+                    <div class="w-9 h-9 bg-red-50 rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
                     </div>
                 </div>
             </div>
@@ -55,8 +62,11 @@
                         <p class="text-xs text-gray-500">Total Pendapatan</p>
                         <p class="text-xl font-bold text-green-600">Rp {{ number_format($stats['total_revenue'], 0, ',', '.') }}</p>
                     </div>
-                    <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
-                        <span class="text-xl">💰</span>
+                    <div class="w-9 h-9 bg-yellow-50 rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
                     </div>
                 </div>
             </div>
@@ -87,12 +97,12 @@
                 </div>
                 <div class="w-full sm:w-40">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Dari Tanggal</label>
-                    <input type="date" name="date_from" value="{{ request('date_from') }}" min="{{ date('Y-m-d') }}"
+                    <input type="date" name="date_from" value="{{ request('date_from') }}"
                            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                 </div>
                 <div class="w-full sm:w-40">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Sampai Tanggal</label>
-                    <input type="date" name="date_to" value="{{ request('date_to') }}" min="{{ date('Y-m-d') }}"
+                    <input type="date" name="date_to" value="{{ request('date_to') }}"
                            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                 </div>
                 <div class="flex items-end gap-2">
@@ -188,7 +198,12 @@
                 </div>
             @else
                 <div class="text-center py-16">
-                    <span class="text-6xl">📋</span>
+                    <div class="mx-auto mb-4 w-16 h-16 rounded-full bg-neutral-100 flex items-center justify-center">
+                        <svg class="w-8 h-8 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6a2 2 0 012-2h2a2 2 0 012 2v6"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2v-7"/>
+                        </svg>
+                    </div>
                     <p class="mt-4 text-gray-500 text-lg">Belum ada riwayat pesanan</p>
                     <p class="text-gray-400">Pesanan yang diterima akan muncul di sini</p>
                 </div>
@@ -200,8 +215,14 @@
 <!-- Order Detail Modal -->
 <div id="orderDetailModal" class="fixed inset-0 bg-white/30 backdrop-blur-sm z-50 hidden items-center justify-center">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
-        <div class="p-6 border-b border-gray-200 flex items-center justify-between">
-            <h3 class="text-xl font-bold text-gray-800">📋 Detail Pesanan</h3>
+            <div class="p-6 border-b border-gray-200 flex items-center justify-between">
+            <h3 class="text-xl font-bold text-gray-800">Detail Pesanan</h3>
+            <div class="ml-3">
+                <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6a2 2 0 012-2h2a2 2 0 012 2v6"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2v-7"/>
+                </svg>
+            </div>
             <button onclick="closeOrderDetail()" class="text-gray-400 hover:text-gray-600">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>

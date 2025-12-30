@@ -111,13 +111,13 @@
                     <!-- Date From -->
                     <div class="md:col-span-1">
                         <label class="block text-xs text-neutral-500 mb-1">Dari Tanggal</label>
-                        <input type="date" name="date_from" value="{{ request('date_from') }}" min="{{ date('Y-m-d') }}" class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                        <input type="date" name="date_from" value="{{ request('date_from') }}" class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
                     </div>
 
                     <!-- Date To -->
                     <div class="md:col-span-1">
                         <label class="block text-xs text-neutral-500 mb-1">Sampai Tanggal</label>
-                        <input type="date" name="date_to" value="{{ request('date_to') }}" min="{{ date('Y-m-d') }}" class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                        <input type="date" name="date_to" value="{{ request('date_to') }}" class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
                     </div>
 
                     <!-- Filter Actions -->

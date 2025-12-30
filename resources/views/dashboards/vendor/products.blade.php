@@ -32,6 +32,7 @@
             <table class="min-w-max w-full text-sm text-left">
                 <thead class="bg-neutral-50 text-neutral-500 font-medium border-b">
                     <tr>
+                        <th class="px-6 py-4">Foto</th>
                         <th class="px-6 py-4">Nama Produk</th>
                         <th class="px-6 py-4">Harga</th>
                         <th class="px-6 py-4">Stok</th>
@@ -42,6 +43,15 @@
                 <tbody class="divide-y divide-neutral-100">
                     @forelse($products as $product)
                         <tr class="hover:bg-neutral-50 transition">
+                            <td class="px-6 py-4">
+                                @if($product->image)
+                                    <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="w-12 h-12 object-cover rounded-md">
+                                @else
+                                    <div class="w-12 h-12 bg-neutral-100 rounded-md flex items-center justify-center text-neutral-300">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7l9-4 9 4v10a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/></svg>
+                                    </div>
+                                @endif
+                            </td>
                             <td class="px-6 py-4 font-medium text-neutral-900">{{ $product->name }}</td>
                             <td class="px-6 py-4">Rp {{ number_format($product->price, 0, ',', '.') }}</td>
                             <td class="px-6 py-4">
@@ -61,7 +71,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-6 py-8 text-center text-neutral-500">Belum ada produk. Silakan tambah produk baru.</td>
+                            <td colspan="6" class="px-6 py-8 text-center text-neutral-500">Belum ada produk. Silakan tambah produk baru.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -77,7 +87,7 @@
                 <h3 id="modal-title" class="text-lg font-bold text-neutral-900">Tambah Produk</h3>
                 <button onclick="closeModal()" class="text-neutral-400 hover:text-neutral-600">✕</button>
             </div>
-            <form id="product-form" method="POST" action="{{ route('products.store') }}" class="p-6">
+            <form id="product-form" method="POST" action="{{ route('products.store') }}" class="p-6" enctype="multipart/form-data">
                 @csrf
                 <div id="method-field"></div>
                 
@@ -102,6 +112,20 @@
                     <textarea name="description" id="p-desc" rows="3" class="w-full rounded-lg border-neutral-300 focus:ring-red-500 focus:border-red-500"></textarea>
                 </div>
 
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-neutral-700 mb-1">Gambar Produk</label>
+                    <div class="flex items-center gap-3">
+                        <div id="image-preview" class="w-20 h-20 bg-neutral-100 rounded-md overflow-hidden flex items-center justify-center">
+                            <svg class="w-8 h-8 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7l9-4 9 4v10a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/></svg>
+                        </div>
+                        <div class="flex-1">
+                            <input type="file" name="image" id="p-image" accept="image/png,image/jpeg,image/gif,image/webp" class="block w-full text-sm text-neutral-700" />
+                            <p class="text-xs text-neutral-400 mt-1">Maksimal 10MB. Format: PNG, JPG, GIF, WEBP.</p>
+                            <p id="image-error" class="text-xs text-red-600 mt-1 hidden"></p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="flex justify-end gap-3">
                     <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-lg hover:bg-neutral-50">Batal</button>
                     <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">Simpan</button>
@@ -115,6 +139,8 @@
         const form = document.getElementById('product-form');
         const title = document.getElementById('modal-title');
         const methodField = document.getElementById('method-field');
+        const imageInput = document.getElementById('p-image');
+        const imagePreview = document.getElementById('image-preview');
 
         function openModal(mode, data = null) {
             modal.classList.remove('hidden');
@@ -129,17 +155,65 @@
                 document.getElementById('p-price').value = data.price;
                 document.getElementById('p-stock').value = data.stock;
                 document.getElementById('p-desc').value = data.description || '';
+                // show existing image if available
+                if (data.image) {
+                    imagePreview.innerHTML = `<img src="/storage/${data.image}" alt="${data.name}" class="w-full h-full object-cover">`;
+                } else {
+                    imagePreview.innerHTML = '<svg class="w-8 h-8 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7l9-4 9 4v10a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/></svg>';
+                }
             } else {
                 title.textContent = 'Tambah Produk';
                 form.action = "{{ route('products.store') }}";
                 methodField.innerHTML = '';
                 form.reset();
+                imagePreview.innerHTML = '<svg class="w-8 h-8 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7l9-4 9 4v10a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/></svg>';
             }
         }
 
         function closeModal() {
             modal.classList.add('hidden');
             modal.classList.remove('flex');
+        }
+
+        // Image preview & validation handler
+        if (imageInput) {
+            imageInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                const allowed = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
+                const maxSize = 10 * 1024 * 1024; // 10MB
+                const errorEl = document.getElementById('image-error');
+                if (!file) {
+                    errorEl.classList.add('hidden');
+                    return;
+                }
+
+                // validate type
+                if (!allowed.includes(file.type)) {
+                    errorEl.textContent = 'Tipe file tidak didukung. Gunakan PNG, JPG, GIF, atau WEBP.';
+                    errorEl.classList.remove('hidden');
+                    imageInput.value = '';
+                    imagePreview.innerHTML = '<svg class="w-8 h-8 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7l9-4 9 4v10a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/></svg>';
+                    return;
+                }
+
+                // validate size
+                if (file.size > maxSize) {
+                    errorEl.textContent = 'Ukuran file terlalu besar. Maks 10MB.';
+                    errorEl.classList.remove('hidden');
+                    imageInput.value = '';
+                    imagePreview.innerHTML = '<svg class="w-8 h-8 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7l9-4 9 4v10a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/></svg>';
+                    return;
+                }
+
+                // clear previous errors
+                errorEl.classList.add('hidden');
+
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    imagePreview.innerHTML = `<img src="${ev.target.result}" class="w-full h-full object-cover">`;
+                };
+                reader.readAsDataURL(file);
+            });
         }
     </script>
 </x-app-layout>

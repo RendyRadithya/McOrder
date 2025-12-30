@@ -5,6 +5,15 @@
 @section('content')
 <div class="min-h-screen bg-gray-100 py-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        @php
+            if (empty($availableYears) || !is_array($availableYears)) {
+                $current = (int) date('Y');
+                $start = $current - 5;
+                $end = $current + 1;
+                $availableYears = range($start, $end);
+            }
+            $year = $year ?? date('Y');
+        @endphp
         <!-- Header + Filters (responsive) -->
         <div class="mb-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div>
@@ -75,9 +84,7 @@
                         <p class="text-sm text-gray-500">Total Pesanan</p>
                         <p class="text-2xl font-bold text-gray-800">{{ number_format($stats['total_orders']) }}</p>
                     </div>
-                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                        <span class="text-2xl">📦</span>
-                    </div>
+                    <div class="w-9 h-9"></div>
                 </div>
             </div>
             <div class="bg-white rounded-xl shadow-md p-6">
@@ -86,9 +93,7 @@
                         <p class="text-sm text-gray-500">Total Pendapatan</p>
                         <p class="text-2xl font-bold text-green-600">Rp {{ number_format($stats['total_revenue'], 0, ',', '.') }}</p>
                     </div>
-                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                        <span class="text-2xl">💰</span>
-                    </div>
+                    <div class="w-9 h-9"></div>
                 </div>
             </div>
             <div class="bg-white rounded-xl shadow-md p-6">
@@ -97,9 +102,7 @@
                         <p class="text-sm text-gray-500">Pesanan Selesai</p>
                         <p class="text-2xl font-bold text-gray-800">{{ number_format($stats['completed_orders']) }}</p>
                     </div>
-                    <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-                        <span class="text-2xl">✅</span>
-                    </div>
+                    <div class="w-9 h-9"></div>
                 </div>
             </div>
             <div class="bg-white rounded-xl shadow-md p-6">
@@ -108,9 +111,7 @@
                         <p class="text-sm text-gray-500">Rata-rata per Pesanan</p>
                         <p class="text-2xl font-bold text-gray-800">Rp {{ number_format($stats['avg_order_value'], 0, ',', '.') }}</p>
                     </div>
-                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                        <span class="text-2xl">📈</span>
-                    </div>
+                    <div class="w-9 h-9"></div>
                 </div>
             </div>
         </div>
@@ -119,13 +120,13 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             <!-- Monthly Sales Chart -->
             <div class="bg-white rounded-xl shadow-md p-6">
-                <h2 class="text-lg font-semibold text-gray-800 mb-4">💵 Pendapatan Bulanan {{ $year }}</h2>
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Pendapatan Bulanan {{ $year }}</h2>
                 <canvas id="salesChart" height="200"></canvas>
             </div>
 
             <!-- Monthly Orders Chart -->
             <div class="bg-white rounded-xl shadow-md p-6">
-                <h2 class="text-lg font-semibold text-gray-800 mb-4">📦 Jumlah Pesanan Bulanan {{ $year }}</h2>
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Jumlah Pesanan Bulanan {{ $year }}</h2>
                 <canvas id="ordersChart" height="200"></canvas>
             </div>
         </div>
@@ -134,7 +135,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             <!-- Top Products -->
             <div class="bg-white rounded-xl shadow-md p-6">
-                <h2 class="text-lg font-semibold text-gray-800 mb-4">🏆 Produk Terlaris</h2>
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Produk Terlaris</h2>
                 @if($topProducts->count() > 0)
                     <div class="space-y-3">
                         @foreach($topProducts as $i => $product)
@@ -173,7 +174,7 @@
 
         <!-- Top Customers -->
         <div class="bg-white rounded-xl shadow-md p-6">
-            <h2 class="text-lg font-semibold text-gray-800 mb-4">🏪 Pelanggan Terbaik</h2>
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Pelanggan Terbaik</h2>
             @if($topCustomers->count() > 0)
                 <div class="overflow-x-auto">
                     <table class="min-w-max w-full">
@@ -227,6 +228,17 @@
 <script>
     // Monthly Sales Chart
     const salesCtx = document.getElementById('salesChart').getContext('2d');
+    const salesData = @json($monthlySales);
+    const salesMax = Math.max.apply(null, salesData.length ? salesData : [0]);
+    const salesTickCallback = function(value) {
+        if (salesMax >= 1000000) {
+            return 'Rp ' + (value / 1000000).toFixed(1) + 'jt';
+        } else if (salesMax >= 1000) {
+            return 'Rp ' + value.toLocaleString('id-ID');
+        }
+        return 'Rp ' + value.toString();
+    };
+
     new Chart(salesCtx, {
         type: 'bar',
         data: {
@@ -256,9 +268,7 @@
                 y: {
                     beginAtZero: true,
                     ticks: {
-                        callback: function(value) {
-                            return 'Rp ' + (value / 1000000).toFixed(1) + 'jt';
-                        }
+                        callback: salesTickCallback
                     }
                 }
             }
