@@ -3,8 +3,7 @@
 @section('title', 'Laporan Penjualan - McOrder')
 
 @section('content')
-<div class="min-h-screen bg-gray-100 py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="max-w-7xl mx-auto px-6 py-6">
         @php
             if (empty($availableYears) || !is_array($availableYears)) {
                 $current = (int) date('Y');
@@ -24,11 +23,11 @@
             <!-- Filters (card) -->
             <div class="w-full sm:w-auto flex items-center gap-3">
                 <div class="bg-white rounded-xl shadow-md p-4 sm:p-6">
-                    <form method="GET" action="{{ route('vendor.reports') }}" class="flex flex-wrap items-end gap-3">
+                    <form method="GET" action="{{ route('vendor.reports') }}" class="flex flex-wrap items-center gap-3">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Tahun</label>
                     <div class="relative">
-                        <select name="year" class="w-full sm:w-28 pl-4 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 appearance-none">
+                        <select name="year" onchange="this.form.submit()" class="w-full sm:w-28 pl-4 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 appearance-none">
                             @foreach($availableYears as $y)
                                 <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>{{ $y }}</option>
                             @endforeach
@@ -43,7 +42,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Bulan</label>
                     <div class="relative">
-                        <select name="month" class="w-full sm:w-40 pl-4 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 appearance-none">
+                        <select name="month" onchange="this.form.submit()" class="w-full sm:w-40 pl-4 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 appearance-none">
                             <option value="">Semua Bulan</option>
                             @php
                                 $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
@@ -59,12 +58,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="w-full sm:w-auto">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">&nbsp;</label>
-                    <button type="submit" class="w-full sm:w-auto px-5 py-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-medium">
-                        Cari
-                    </button>
-                </div>
+                
                     </form>
                 </div>
                 <div class="ml-2">
@@ -77,41 +71,56 @@
         </div>
 
         <!-- Statistics Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-xl shadow-md p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500">Total Pesanan</p>
-                        <p class="text-2xl font-bold text-gray-800">{{ number_format($stats['total_orders']) }}</p>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="flex-1 min-w-0 bg-white rounded-xl p-5 h-44 flex flex-col justify-between transition-transform transform hover:-translate-y-1 hover:shadow-lg duration-200 ease-out">
+                <div class="flex justify-between items-center h-full">
+                    <div class="self-center space-y-2">
+                        <div class="text-sm text-neutral-600 font-medium">Total Pesanan</div>
+                        <div class="text-3xl font-bold text-neutral-900">{{ number_format($stats['total_orders']) }}</div>
+                        <div class="text-xs text-neutral-400">Pesanan di periode ini</div>
                     </div>
-                    <div class="w-9 h-9"></div>
+                    <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    </div>
                 </div>
             </div>
-            <div class="bg-white rounded-xl shadow-md p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500">Total Pendapatan</p>
-                        <p class="text-2xl font-bold text-green-600">Rp {{ number_format($stats['total_revenue'], 0, ',', '.') }}</p>
+
+            <div class="flex-1 min-w-0 bg-white rounded-xl p-5 h-44 flex flex-col justify-between transition-transform transform hover:-translate-y-1 hover:shadow-lg duration-200 ease-out">
+                <div class="flex justify-between items-center h-full">
+                    <div class="self-center space-y-2">
+                        <div class="text-sm text-neutral-600 font-medium">Total Pendapatan</div>
+                        <div class="text-3xl font-bold text-green-600">Rp {{ number_format($stats['total_revenue'], 0, ',', '.') }}</div>
+                        <div class="text-xs text-neutral-400">Dari pesanan sukses</div>
                     </div>
-                    <div class="w-9 h-9"></div>
+                    <div class="w-10 h-10 bg-yellow-50 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
                 </div>
             </div>
-            <div class="bg-white rounded-xl shadow-md p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500">Pesanan Selesai</p>
-                        <p class="text-2xl font-bold text-gray-800">{{ number_format($stats['completed_orders']) }}</p>
+
+            <div class="flex-1 min-w-0 bg-white rounded-xl p-5 h-44 flex flex-col justify-between transition-transform transform hover:-translate-y-1 hover:shadow-lg duration-200 ease-out">
+                <div class="flex justify-between items-center h-full">
+                    <div class="self-center space-y-2">
+                        <div class="text-sm text-neutral-600 font-medium">Pesanan Selesai</div>
+                        <div class="text-3xl font-bold text-neutral-900">{{ number_format($stats['completed_orders']) }}</div>
+                        <div class="text-xs text-neutral-400">Berhasil diterima</div>
                     </div>
-                    <div class="w-9 h-9"></div>
+                    <div class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
                 </div>
             </div>
-            <div class="bg-white rounded-xl shadow-md p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500">Rata-rata per Pesanan</p>
-                        <p class="text-2xl font-bold text-gray-800">Rp {{ number_format($stats['avg_order_value'], 0, ',', '.') }}</p>
+
+            <div class="flex-1 min-w-0 bg-white rounded-xl p-5 h-44 flex flex-col justify-between transition-transform transform hover:-translate-y-1 hover:shadow-lg duration-200 ease-out">
+                <div class="flex justify-between items-center h-full">
+                    <div class="self-center space-y-2">
+                        <div class="text-sm text-neutral-600 font-medium">Rata-rata per Pesanan</div>
+                        <div class="text-3xl font-bold text-neutral-900">Rp {{ number_format($stats['avg_order_value'], 0, ',', '.') }}</div>
+                        <div class="text-xs text-neutral-400">Per pesanan</div>
                     </div>
-                    <div class="w-9 h-9"></div>
+                    <div class="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                    </div>
                 </div>
             </div>
         </div>
@@ -221,7 +230,6 @@
             @endif
         </div>
     </div>
-</div>
 
 <!-- Chart.js CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

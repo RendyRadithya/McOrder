@@ -40,9 +40,9 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                 <!-- card -->
                 <div class="flex-1 min-w-0 bg-white rounded-xl p-5 h-44 flex flex-col justify-between transition-transform transform hover:-translate-y-1 hover:shadow-lg duration-200 ease-out">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <div class="text-xs text-neutral-500">Total Pesanan</div>
+                    <div class="flex justify-between items-center h-full">
+                        <div class="self-center space-y-2">
+                            <div class="text-sm text-neutral-600 font-medium">Total Pesanan</div>
                             <div class="text-3xl font-bold text-neutral-900">{{ $totalOrders }}</div>
                             <div class="text-xs text-neutral-400">Semua pesanan</div>
                         </div>
@@ -56,9 +56,9 @@
 
                 <!-- card -->
                 <div class="flex-1 min-w-0 bg-white rounded-xl p-5 h-44 flex flex-col justify-between transition-transform transform hover:-translate-y-1 hover:shadow-lg duration-200 ease-out">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <div class="text-xs text-neutral-500">Pesanan Baru</div>
+                    <div class="flex justify-between items-center h-full">
+                        <div class="self-center space-y-2">
+                            <div class="text-sm text-neutral-600 font-medium">Pesanan Baru</div>
                             <div class="text-3xl font-bold text-blue-600">{{ $newOrders }}</div>
                             <div class="text-xs text-neutral-400">Perlu konfirmasi</div>
                         </div>
@@ -72,9 +72,9 @@
 
                 <!-- card -->
                 <div class="flex-1 min-w-0 bg-white rounded-xl p-5 h-44 flex flex-col justify-between transition-transform transform hover:-translate-y-1 hover:shadow-lg duration-200 ease-out">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <div class="text-xs text-neutral-500">Dalam Proses</div>
+                    <div class="flex justify-between items-center h-full">
+                        <div class="self-center space-y-2">
+                            <div class="text-sm text-neutral-600 font-medium">Dalam Proses</div>
                             <div class="text-3xl font-bold text-neutral-900">{{ $inProgress }}</div>
                             <div class="text-xs text-neutral-400">Sedang dikerjakan</div>
                         </div>
@@ -88,9 +88,9 @@
 
                 <!-- card -->
                 <div class="flex-1 min-w-0 bg-white rounded-xl p-5 h-44 flex flex-col justify-between transition-transform transform hover:-translate-y-1 hover:shadow-lg duration-200 ease-out">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <div class="text-xs text-neutral-500">Selesai</div>
+                    <div class="flex justify-between items-center h-full">
+                        <div class="self-center space-y-2">
+                            <div class="text-sm text-neutral-600 font-medium">Selesai</div>
                             <div class="text-3xl font-bold text-neutral-900">{{ $completed }}</div>
                             <div class="text-xs text-neutral-400">Pesanan selesai</div>
                         </div>
@@ -104,9 +104,9 @@
 
                 <!-- card -->
                 <div class="flex-1 min-w-0 bg-white rounded-xl p-5 h-44 flex flex-col justify-between transition-transform transform hover:-translate-y-1 hover:shadow-lg duration-200 ease-out">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <div class="text-xs text-neutral-500">Total Penjualan</div>
+                    <div class="flex justify-between items-center h-full">
+                        <div class="self-center space-y-2">
+                            <div class="text-sm text-neutral-600 font-medium">Total Penjualan</div>
                             <div class="text-3xl font-bold text-red-600">Rp {{ number_format($totalSales,0,',','.') }}</div>
                             <div class="text-xs text-neutral-400">Bulan ini</div>
                         </div>
@@ -218,7 +218,15 @@
                                     </span>
                                 </td>
                                 <td class="py-3 px-4">
-                                    <button class="inline-flex items-center justify-center w-9 h-9 border rounded-md text-neutral-600 btn-order-detail" data-id="{{ $o->id }}" title="Lihat Detail">👁</button>
+                                    <div class="flex items-center gap-2">
+                                        <button class="inline-flex items-center justify-center w-9 h-9 border rounded-md text-neutral-600 btn-order-detail" data-id="{{ $o->id }}" title="Lihat Detail">👁</button>
+                                        <a href="{{ route('orders.invoice.download', $o->id) }}" target="_blank" class="inline-flex items-center justify-center w-9 h-9 border rounded-md text-neutral-500 hover:text-green-600 hover:bg-green-50 transition" title="Download Invoice">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v12m0 0l4-4m-4 4l-4-4" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21H3" />
+                                            </svg>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         @empty

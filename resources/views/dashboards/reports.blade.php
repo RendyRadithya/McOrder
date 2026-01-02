@@ -52,11 +52,11 @@
         <!-- Statistics Cards -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <!-- Total Pesanan -->
-            <div class="bg-white p-5 rounded-lg border border-neutral-200 shadow-sm">
+            <div class="flex-1 min-w-0 bg-white rounded-xl p-5 h-44 flex flex-col justify-between transition-transform transform hover:-translate-y-1 hover:shadow-lg duration-200 ease-out">
                 <div class="flex items-start justify-between mb-3">
                     <div class="text-sm text-neutral-600">Total Pesanan</div>
-                    <div class="w-9 h-9 bg-neutral-100 rounded-lg flex items-center justify-center">
-                        <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                         </svg>
                     </div>
@@ -66,11 +66,11 @@
             </div>
 
             <!-- Total Pengeluaran -->
-            <div class="bg-white p-5 rounded-lg border border-neutral-200 shadow-sm">
+            <div class="flex-1 min-w-0 bg-white rounded-xl p-5 h-44 flex flex-col justify-between transition-transform transform hover:-translate-y-1 hover:shadow-lg duration-200 ease-out">
                 <div class="flex items-start justify-between mb-3">
                     <div class="text-sm text-neutral-600">Total Pengeluaran</div>
-                    <div class="w-9 h-9 bg-neutral-100 rounded-lg flex items-center justify-center">
-                        <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-9 h-9 bg-yellow-50 rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                     </div>
@@ -80,11 +80,11 @@
             </div>
 
             <!-- Pesanan Selesai -->
-            <div class="bg-white p-5 rounded-lg border border-neutral-200 shadow-sm">
+            <div class="flex-1 min-w-0 bg-white rounded-xl p-5 h-44 flex flex-col justify-between transition-transform transform hover:-translate-y-1 hover:shadow-lg duration-200 ease-out">
                 <div class="flex items-start justify-between mb-3">
                     <div class="text-sm text-neutral-600">Pesanan Selesai</div>
-                    <div class="w-9 h-9 bg-neutral-100 rounded-lg flex items-center justify-center">
-                        <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-9 h-9 bg-green-50 rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                     </div>
@@ -94,11 +94,11 @@
             </div>
 
             <!-- Rata-rata Nilai Pesanan -->
-            <div class="bg-white p-5 rounded-lg border border-neutral-200 shadow-sm">
+            <div class="flex-1 min-w-0 bg-white rounded-xl p-5 h-44 flex flex-col justify-between transition-transform transform hover:-translate-y-1 hover:shadow-lg duration-200 ease-out">
                 <div class="flex items-start justify-between mb-3">
                     <div class="text-sm text-neutral-600">Rata-rata Nilai</div>
-                    <div class="w-9 h-9 bg-neutral-100 rounded-lg flex items-center justify-center">
-                        <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-9 h-9 bg-purple-50 rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
                         </svg>
                     </div>

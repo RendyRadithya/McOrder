@@ -13,7 +13,7 @@
         <!-- Statistics Cards -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <!-- Total Pesanan -->
-            <div class="bg-white p-5 rounded-lg border border-neutral-200 shadow-sm">
+            <div class="flex-1 min-w-0 bg-white rounded-xl p-5 h-44 flex flex-col justify-between transition-transform transform hover:-translate-y-1 hover:shadow-lg duration-200 ease-out">
                 <div class="flex items-start justify-between mb-3">
                     <div class="text-sm text-neutral-600">Total Pesanan</div>
                     <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
@@ -27,7 +27,7 @@
             </div>
 
             <!-- Pesanan Selesai -->
-            <div class="bg-white p-5 rounded-lg border border-neutral-200 shadow-sm">
+            <div class="flex-1 min-w-0 bg-white rounded-xl p-5 h-44 flex flex-col justify-between transition-transform transform hover:-translate-y-1 hover:shadow-lg duration-200 ease-out">
                 <div class="flex items-start justify-between mb-3">
                     <div class="text-sm text-neutral-600">Pesanan Selesai</div>
                     <div class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
@@ -41,7 +41,7 @@
             </div>
 
             <!-- Pesanan Ditolak -->
-            <div class="bg-white p-5 rounded-lg border border-neutral-200 shadow-sm">
+            <div class="flex-1 min-w-0 bg-white rounded-xl p-5 h-44 flex flex-col justify-between transition-transform transform hover:-translate-y-1 hover:shadow-lg duration-200 ease-out">
                 <div class="flex items-start justify-between mb-3">
                     <div class="text-sm text-neutral-600">Pesanan Ditolak</div>
                     <div class="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center">
@@ -55,7 +55,7 @@
             </div>
 
             <!-- Total Pengeluaran -->
-            <div class="bg-white p-5 rounded-lg border border-neutral-200 shadow-sm">
+            <div class="flex-1 min-w-0 bg-white rounded-xl p-5 h-44 flex flex-col justify-between transition-transform transform hover:-translate-y-1 hover:shadow-lg duration-200 ease-out">
                 <div class="flex items-start justify-between mb-3">
                     <div class="text-sm text-neutral-600">Total Pengeluaran</div>
                     <div class="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center">

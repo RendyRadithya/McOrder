@@ -15,60 +15,58 @@
         </div>
 
         <!-- Statistics Cards -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div class="bg-white rounded-xl shadow-md p-4">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-xs text-gray-500">Total Pesanan</p>
-                        <p class="text-xl font-bold text-gray-800">{{ number_format($stats['total']) }}</p>
-                    </div>
-                    <div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center">
-                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7l9-4 9 4v10a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7l9 4 9-4"/>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="flex-1 min-w-0 bg-white rounded-xl p-5 h-44 flex flex-col justify-between transition-transform transform hover:-translate-y-1 hover:shadow-lg duration-200 ease-out">
+                <div class="flex items-start justify-between mb-3">
+                    <div class="text-sm text-neutral-600">Total Pesanan</div>
+                    <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                         </svg>
                     </div>
                 </div>
+                <div class="text-3xl font-bold text-neutral-900">{{ number_format($stats['total']) }}</div>
+                <div class="text-xs text-neutral-500 mt-1">Semua pesanan</div>
             </div>
-            <div class="bg-white rounded-xl shadow-md p-4">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-xs text-gray-500">Pesanan Selesai</p>
-                        <p class="text-xl font-bold text-green-600">{{ number_format($stats['completed']) }}</p>
-                    </div>
-                    <div class="w-9 h-9 bg-green-50 rounded-lg flex items-center justify-center">
-                        <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+
+            <div class="flex-1 min-w-0 bg-white rounded-xl p-5 h-44 flex flex-col justify-between transition-transform transform hover:-translate-y-1 hover:shadow-lg duration-200 ease-out">
+                <div class="flex items-start justify-between mb-3">
+                    <div class="text-sm text-neutral-600">Pesanan Selesai</div>
+                    <div class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                     </div>
                 </div>
+                <div class="text-3xl font-bold text-neutral-900">{{ number_format($stats['completed']) }}</div>
+                <div class="text-xs text-neutral-500 mt-1">Berhasil diterima</div>
             </div>
-            <div class="bg-white rounded-xl shadow-md p-4">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-xs text-gray-500">Pesanan Ditolak</p>
-                        <p class="text-xl font-bold text-red-600">{{ number_format($stats['rejected']) }}</p>
-                    </div>
-                    <div class="w-9 h-9 bg-red-50 rounded-lg flex items-center justify-center">
-                        <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+
+            <div class="flex-1 min-w-0 bg-white rounded-xl p-5 h-44 flex flex-col justify-between transition-transform transform hover:-translate-y-1 hover:shadow-lg duration-200 ease-out">
+                <div class="flex items-start justify-between mb-3">
+                    <div class="text-sm text-neutral-600">Pesanan Ditolak</div>
+                    <div class="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                     </div>
                 </div>
+                <div class="text-3xl font-bold text-neutral-900">{{ number_format($stats['rejected']) }}</div>
+                <div class="text-xs text-neutral-500 mt-1">Ditolak vendor</div>
             </div>
-            <div class="bg-white rounded-xl shadow-md p-4">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-xs text-gray-500">Total Pendapatan</p>
-                        <p class="text-xl font-bold text-green-600">Rp {{ number_format($stats['total_revenue'], 0, ',', '.') }}</p>
-                    </div>
-                    <div class="w-9 h-9 bg-yellow-50 rounded-lg flex items-center justify-center">
-                        <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+            <div class="flex-1 min-w-0 bg-white rounded-xl p-5 h-44 flex flex-col justify-between transition-transform transform hover:-translate-y-1 hover:shadow-lg duration-200 ease-out">
+                <div class="flex items-start justify-between mb-3">
+                    <div class="text-sm text-neutral-600">Total Pendapatan</div>
+                    <div class="w-10 h-10 bg-yellow-50 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2"/>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                     </div>
                 </div>
+                <div class="text-2xl font-bold text-neutral-900">Rp {{ number_format($stats['total_revenue'], 0, ',', '.') }}</div>
+                <div class="text-xs text-neutral-500 mt-1">Dari pesanan selesai</div>
             </div>
         </div>
 
@@ -178,13 +176,21 @@
                                         </span>
                                     </td>
                                     <td class="px-4 py-3 text-center">
-                                        <button onclick="showOrderDetail({{ $order->id }})" 
-                                                class="text-blue-600 hover:text-blue-800 transition" title="Lihat Detail">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                            </svg>
-                                        </button>
+                                        <div class="inline-flex items-center">
+                                            <button onclick="showOrderDetail({{ $order->id }})" 
+                                                    class="text-blue-600 hover:text-blue-800 transition" title="Lihat Detail">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                                </svg>
+                                            </button>
+                                            <a href="{{ route('orders.invoice.download', $order->id) }}" target="_blank" class="ml-3 text-neutral-500 hover:text-green-600 hover:bg-green-50 inline-flex items-center justify-center w-9 h-9 rounded-md transition" title="Download Invoice">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v12m0 0l4-4m-4 4l-4-4" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21H3" />
+                                                </svg>
+                                            </a>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach
