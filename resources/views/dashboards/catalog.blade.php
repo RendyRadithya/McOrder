@@ -278,6 +278,7 @@
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-neutral-700 mb-2">Estimasi Pengiriman</label>
                     <input type="date" id="modal-delivery-date" name="estimated_delivery" class="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" required>
+                    <p class="text-xs text-neutral-500 mt-1">Tanggal pengiriman minimal besok ({{ \Carbon\Carbon::tomorrow()->format('d/m/Y') }})</p>
                 </div>
 
                 <!-- Total -->

@@ -84,7 +84,15 @@ Route::get('/dashboard', function () {
         $newOrders = $orders->where('status', 'pending')->count();
         $inProgress = $orders->whereIn('status', ['confirmed', 'in_progress'])->count();
         $completed = $orders->whereIn('status', ['completed', 'shipped'])->count();
-        $totalSales = $orders->whereIn('status', ['completed', 'shipped'])->sum('total_price');
+        
+        // Total penjualan bulan ini - include pesanan yang sudah dikonfirmasi
+        $currentMonth = now()->month;
+        $currentYear = now()->year;
+        $totalSales = Order::where('vendor_id', $user->id)
+            ->whereYear('created_at', $currentYear)
+            ->whereMonth('created_at', $currentMonth)
+            ->whereIn('status', ['confirmed', 'in_progress', 'shipped', 'completed'])
+            ->sum('total_price');
 
         return view('dashboards.vendor', compact(
             'orders',
@@ -784,10 +792,23 @@ Route::middleware('auth')->group(function () {
             'vendor_name' => 'required',
             'product_name' => 'required',
             'quantity' => 'required|integer|min:1',
-            'estimated_delivery' => 'required|date',
+            'estimated_delivery' => 'required|date|after:today',
             'vendor_id' => 'nullable|exists:users,id',
             'product_id' => 'required|exists:products,id',
+        ], [
+            'estimated_delivery.after' => 'Tanggal pengiriman harus minimal besok.',
         ]);
+
+        // Additional validation: ensure delivery date is at least tomorrow
+        $deliveryDate = \Carbon\Carbon::parse($request->estimated_delivery);
+        $tomorrow = \Carbon\Carbon::tomorrow();
+        
+        if ($deliveryDate->isBefore($tomorrow)) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Tanggal pengiriman harus minimal besok (' . $tomorrow->format('d/m/Y') . ').'
+            ], 422);
+        }
 
         $product = \App\Models\Product::findOrFail($request->product_id);
         
@@ -940,6 +961,24 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/vendor/orders', [VendorOrderController::class, 'index'])->name('vendor.orders.index');
     Route::patch('/vendor/orders/{id}/status', [VendorOrderController::class, 'updateStatus'])->name('vendor.orders.updateStatus');
+    
+    // API untuk mengambil total penjualan bulan ini
+    Route::get('/vendor/total-sales', function () {
+        $user = Auth::user();
+        if ($user->role !== 'vendor') {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+        
+        $currentMonth = now()->month;
+        $currentYear = now()->year;
+        $totalSales = Order::where('vendor_id', $user->id)
+            ->whereYear('created_at', $currentYear)
+            ->whereMonth('created_at', $currentMonth)
+            ->whereIn('status', ['confirmed', 'in_progress', 'shipped', 'completed'])
+            ->sum('total_price');
+            
+        return response()->json(['totalSales' => $totalSales]);
+    })->name('vendor.totalSales');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

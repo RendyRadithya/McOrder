@@ -342,6 +342,7 @@
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-neutral-700 mb-2">Tanggal Pengiriman Diharapkan</label>
                     <input id="date-input" type="date" class="w-full px-4 py-3 rounded-lg bg-neutral-50 border-transparent focus:bg-white focus:ring-2 focus:ring-red-500 focus:border-transparent transition text-neutral-500" />
+                    <p class="text-xs text-neutral-500 mt-2">Tanggal pengiriman minimal besok ({{ \Carbon\Carbon::tomorrow()->format('d/m/Y') }})</p>
                 </div>
 
                 <div id="order-summary" class="mb-6 border border-red-100 rounded-lg p-4 bg-red-50 hidden">
@@ -399,6 +400,14 @@
             function openModal(){
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
+                
+                // Set min date to tomorrow
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                const minDate = tomorrow.toISOString().split('T')[0];
+                dateInput.min = minDate;
+                dateInput.value = minDate; // Set default to tomorrow
+                
                 loadVendors();
             }
 
